@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "strict": true,
+        "jsx": "preserve",
+        "moduleResolution": "node",
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "useDefineForClassFields": true,
+        "sourceMap": false,
+        "baseUrl": ".",
+        "types": ["vite/client"],
+        "paths": {
+            "@/*": ["resources/js/*"],
+            "@/admin/*": ["resources/js/admin/*"],
+        }
+    },
+    "include": [
+        "resources/js/**/*",
+        "resources/js/**/*.d.ts",
+        "vite.config.ts"],
+    "exclude": ["node_modules"]
+}

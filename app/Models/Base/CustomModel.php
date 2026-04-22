@@ -1,0 +1,283 @@
+<?php
+
+namespace App\Models\Base;
+
+use App\Models\Concerns\HasFilterable;
+use App\Models\Scopes\BaseScope;
+use App\Services\Cache\TraitCacheService;
+use Core\Database\Eloquent\Model\BaseModelSoftDelete;
+
+class CustomModel extends BaseModelSoftDelete
+{
+
+    use BaseScope;
+    use HasFilterable;
+    use TraitCacheService;
+
+    /**
+     * @override: add default hidden columns
+     * @return array
+     */
+    public function getHidden()
+    {
+        $default = [];
+        if (!empty($this->hiddenDeletedFlag)){
+            $default[] = $this->getDeletedFlagColumn();
+        }
+        if (!empty($this->hiddenInsId)){
+            $default[] = $this->getCreatedByColumn();
+        }
+        if (!empty($this->hiddenUpdId)){
+            $default[] = $this->getUpdatedByColumn();
+        }
+
+        return array_merge($this->hidden, $default);
+    }
+
+
+    /**
+     * @param false $isDeleted
+     * @return string|null
+     */
+    public function getDeletedFlagValue(bool $isDeleted = false): string|null
+    {
+        return getDeletedFlagValue($isDeleted);
+    }
+
+    /**
+     * get deleted flag column
+     *
+     * @return string|null
+     */
+    public function getDeletedFlag(): string|null
+    {
+        return getDeletedFlagColumn();
+    }
+
+    /**
+     * get deleted flag column
+     *
+     * @return string|null
+     */
+    public function getDeletedFlagColumn(): string|null
+    {
+        return $this->getDeletedFlag();
+    }
+
+
+    /**
+     * get deleted at column
+     *
+     * @return string|null
+     */
+    public function getDeletedAtColumn(): string|null
+    {
+        return getDeletedAtColumn();
+    }
+
+    /**
+     * get deleted by column
+     *
+     * @return string|null
+     */
+    public function getDeletedByColumn(): string|null
+    {
+        return getDeletedByColumn();
+    }
+
+
+    /**
+     * get created at column
+     *
+     * @return string|null
+     */
+    public function getCreatedAtColumn(): string|null
+    {
+        return getCreatedAtColumn();
+    }
+
+    /**
+     * get created by column
+     *
+     * @return string|null
+     */
+    public function getCreatedByColumn(): string|null
+    {
+        return getCreatedByColumn();
+    }
+
+
+    /**
+     * get updated at column
+     *
+     * @return string|null
+     */
+    public function getUpdatedAtColumn(): string|null
+    {
+        return getUpdatedAtColumn();
+    }
+
+    /**
+     * get updated by column
+     *
+     * @return string|null
+     */
+    public function getUpdatedByColumn(): string|null
+    {
+        return getUpdatedByColumn();
+    }
+
+
+    /**
+     * @param $data
+     * @return $this
+     */
+    public function mergeAttributes($data)
+    {
+        $this->attributes = array_merge($this->attributes, $data);
+        return $this;
+    }
+
+    /**
+     * @param $column
+     * @return string
+     */
+    public function getQualifiedColumn($column): string|null
+    {
+        return $this->getTable() . '.' . $column;
+    }
+
+    /**
+     * @param $column
+     * @return string
+     */
+    public static function qualifiedColumn($column)
+    {
+        return with(new static)->getQualifiedColumn($column);
+    }
+
+    /**
+     * @param $key
+     * @param int $offset
+     * @param array $attr
+     * @param bool $resetOffset
+     * @return mixed
+     */
+    public function getRelationOrNew($key, $offset = 0, $attr = [], $resetOffset = false)
+    {
+        if (!$this->getKey() && empty($this->relationsToArray())) {
+            return $this->{$key}()->getRelated()->setRawAttributes($attr);
+        }
+        try {
+            $r = $this->getRelationValue($key);
+            if (isCollection($r) && $resetOffset) {
+                $r = $r->values();
+            }
+            $entity = isCollection($r) ? $r->offsetGet($offset) : $r;
+            if ($entity) {
+                return $entity;
+            }
+        } catch (\Exception $exception) {
+            logError($exception);
+        }
+        return $this->{$key}()->getRelated()->setRawAttributes($attr);
+    }
+
+    /**
+     * @param $key
+     * @param int $offset
+     * @param bool $resetOffset
+     * @return mixed
+     */
+    public function tryGet($key, $offset = 0, $resetOffset = false)
+    {
+        return $this->getRelationOrNew($key, $offset, [], $resetOffset);
+    }
+
+
+    /**
+     * Register a model event with the dispatcher.
+     *
+     * @param  string $event
+     * @param  \Closure|string $callback
+     * @return void
+     */
+    protected static function registerModelEvent($event, $callback)
+    {
+        if (isset(static::$dispatcher)) {
+            $name = static::class;
+
+            static::$dispatcher->listen(getConstant('EVENT_MODEL_TYPE') . ".{$event}: {$name}", $callback);
+        }
+    }
+
+
+    public function getKeyName($getFirst = false)
+    {
+        $keys = parent::getKeyName(); // TODO: Change the autogenerated stub
+        if (!$getFirst) {
+            return $keys;
+        }
+        return data_get((array)$keys, 0);
+    }
+
+    public static function getTableName() {
+        return with(new static)->getTable();
+    }
+
+    public static function field(string $column): string
+    {
+        return with(new static)->getQualifiedColumn($column);
+    }
+
+    public static function fields(array $columns): array
+    {
+        $table = with(new static);
+        foreach ($columns as $key => $column){
+            $columns[$key] = $table->getQualifiedColumn($column);
+        }
+        return $columns;
+    }
+
+    public function getFillable($exceptDefault = false): array
+    {
+        $fields = parent::getFillable();
+        if ($exceptDefault) {
+            $defaultFields = [
+                $this->getDeletedFlagColumn(),
+                $this->getCreatedByColumn(),
+                $this->getCreatedAtColumn(),
+                $this->getUpdatedByColumn(),
+                $this->getUpdatedAtColumn(),
+            ];
+            $fields = array_diff($fields, $defaultFields);
+        }
+        return $fields;
+    }
+
+    public static function dataDefaultAttributes(array $data = [], array | bool $exceptDefaultFields = true, $defaultValue = null): array
+    {
+        $fields =  with(new static)->getFillable($exceptDefaultFields);
+        $fields = array_combine($fields, $fields);
+
+        // except more fields
+        if (is_array($exceptDefaultFields)){
+            foreach ($exceptDefaultFields as $fieldExcepted) {
+                unset($fields[$fieldExcepted]);
+            }
+        }
+
+        // data default
+        $dataAttributes = array_fill_keys($fields, $defaultValue);
+
+        // other
+        if (!empty($data)){
+            foreach ($data as $field => $value){
+                $dataAttributes[$field] = $value;
+            }
+        }
+
+        return $dataAttributes;
+    }
+
+}
