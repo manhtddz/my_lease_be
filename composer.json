@@ -13,7 +13,7 @@
         "laravel/framework": "^12.0",
         "laravel/sanctum": "*",
         "laravel/tinker": "^2.10.1",
-        "laravelcollective/html": "^3.0"
+        "laravelcollective/html": "^6.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "*",
