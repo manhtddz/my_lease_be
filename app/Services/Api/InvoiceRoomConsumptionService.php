@@ -2,26 +2,26 @@
 
 namespace App\Services\Api;
 
-use App\Repositories\Api\InvoiceRepository;
+use App\Repositories\Api\InvoiceRoomConsumptionRepository;
 use App\Services\CustomService;
 
-class InvoiceService extends CustomService
+class InvoiceRoomConsumptionService extends CustomService
 {
     public function __construct(
-        public InvoiceRepository $invoiceRepository
+        public InvoiceRoomConsumptionRepository $invoiceRoomConsumptionRepository
     ) {
         parent::__construct();
     }
 
     public function getListForSearch($dataSearch = [])
     {
-        return $this->invoiceRepository->getListForSearch($dataSearch);
+        return $this->invoiceRoomConsumptionRepository->getListForSearch($dataSearch);
     }
 
     public function store($params)
     {
         try {
-            $this->invoiceRepository->create($params);
+            $this->invoiceRoomConsumptionRepository->create($params);
         } catch (\Throwable $exception) {
             logError($exception->getMessage());
             return false;
@@ -32,13 +32,15 @@ class InvoiceService extends CustomService
 
     public function getById($id)
     {
-        return $this->invoiceRepository->findForShow($id);
+        return $this->invoiceRoomConsumptionRepository->newQuery()
+            ->with(['invoice', 'roomConsumption'])
+            ->find($id);
     }
 
     public function update($id, $params)
     {
         try {
-            $this->invoiceRepository->update($id, $params);
+            $this->invoiceRoomConsumptionRepository->update($id, $params);
         } catch (\Throwable $exception) {
             logError($exception->getMessage());
             return false;
@@ -50,7 +52,7 @@ class InvoiceService extends CustomService
     public function delete($id)
     {
         try {
-            $this->invoiceRepository->delete($id);
+            $this->invoiceRoomConsumptionRepository->delete($id);
         } catch (\Throwable $exception) {
             logInfo($exception->getMessage());
             return false;

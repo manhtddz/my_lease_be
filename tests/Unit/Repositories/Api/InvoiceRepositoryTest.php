@@ -15,9 +15,12 @@ class InvoiceRepositoryTest extends TestCase
         $this->assertIsString($content);
         $this->assertStringContainsString('class InvoiceRepository extends CustomRepository', $content);
         $this->assertStringContainsString('protected $model = Invoice::class;', $content);
+        $this->assertStringContainsString("data_get(\$dataSearch, 'room_id')", $content);
+        $this->assertStringContainsString("data_get(\$dataSearch, 'representative_tenant_id')", $content);
         $this->assertStringContainsString("data_get(\$dataSearch, 'note')", $content);
         $this->assertStringContainsString("whereLike(\$this->modelField('note')", $content);
         $this->assertStringContainsString("data_get(\$dataSearch, 'payment_status')", $content);
+        $this->assertStringContainsString('findForShow', $content);
         $this->assertStringContainsString('paginate(getConstant(\'PER_PAGE_DEFAULT\'))', $content);
     }
 }

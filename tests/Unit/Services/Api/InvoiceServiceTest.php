@@ -19,6 +19,7 @@ class InvoiceServiceTest extends TestCase
         $this->assertStringContainsString('function getListForSearch($dataSearch = [])', $content);
         $this->assertStringContainsString('function store($params)', $content);
         $this->assertStringContainsString('function getById($id)', $content);
+        $this->assertStringContainsString('findForShow', $content);
         $this->assertStringContainsString('function update($id, $params)', $content);
         $this->assertStringContainsString('function delete($id)', $content);
     }

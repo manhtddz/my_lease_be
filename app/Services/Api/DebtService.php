@@ -32,7 +32,9 @@ class DebtService extends CustomService
 
     public function getById($id)
     {
-        return $this->debtRepository->find($id);
+        return $this->debtRepository->newQuery()
+            ->with(['invoiceItems', 'invoice', 'tenant'])
+            ->find($id);
     }
 
     public function update($id, $params)

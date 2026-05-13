@@ -28,6 +28,8 @@ class DebtUpdateFormRequest extends FormRequest
             'original_amount' => ['sometimes', 'numeric'],
             'paid_amount' => ['nullable', 'numeric'],
             'remaining_amount' => ['sometimes', 'numeric'],
+            'penalty_amount' => ['nullable', 'numeric'],
+            'debt_type' => ['sometimes', 'integer', Rule::in([1, 2])],
             'due_date' => ['sometimes', 'date'],
             'status' => ['sometimes', 'string', 'max:50'],
             'note' => ['nullable', 'string'],

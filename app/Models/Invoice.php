@@ -13,12 +13,7 @@ class Invoice extends CustomModel
 
     protected $fillable = [
         'room_id',
-        'room_consumption_id',
         'representative_tenant_id',
-        'electricity_amount',
-        'water_amount',
-        'room_amount',
-        'extra_amount',
         'total_amount',
         'payment_status',
         'note',
@@ -36,12 +31,14 @@ class Invoice extends CustomModel
         return $this->belongsTo(Room::class, 'room_id');
     }
 
-    public function consumption()
+    public function roomConsumptions()
     {
-        return $this->belongsTo(
+        return $this->belongsToMany(
             RoomConsumption::class,
+            'invoice_room_consumptions',
+            'invoice_id',
             'room_consumption_id'
-        );
+        )->withPivot('allocated_amount');
     }
 
     public function representative()
@@ -59,6 +56,16 @@ class Invoice extends CustomModel
 
     public function debt()
     {
-        return $this->hasOne(Debt::class, 'invoice_id');
+        return $this->hasMany(Debt::class, 'invoice_id');
+    }
+
+    public function invoiceItems()
+    {
+        return $this->hasMany(InvoiceItem::class, 'invoice_id');
+    }
+
+    public function invoiceRoomConsumptions()
+    {
+        return $this->hasMany(InvoiceRoomConsumption::class, 'invoice_id');
     }
 }

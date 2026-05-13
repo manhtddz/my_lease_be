@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\DebtController;
 use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\InvoiceItemController;
+use App\Http\Controllers\Api\InvoiceRoomConsumptionController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\RoomConsumptionController;
 use App\Http\Controllers\Api\RoomController;
@@ -49,6 +51,22 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
             Route::put('/{id}', [InvoiceController::class, 'update'])->name('update');
             Route::delete('/{id}', [InvoiceController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::group(['as' => 'invoiceItems.', 'prefix' => 'invoice-items'], function () {
+            Route::get('/', [InvoiceItemController::class, 'index'])->name('index');
+            Route::post('/', [InvoiceItemController::class, 'store'])->name('store');
+            Route::get('/{id}', [InvoiceItemController::class, 'show'])->name('show');
+            Route::put('/{id}', [InvoiceItemController::class, 'update'])->name('update');
+            Route::delete('/{id}', [InvoiceItemController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::group(['as' => 'invoiceRoomConsumptions.', 'prefix' => 'invoice-room-consumptions'], function () {
+            Route::get('/', [InvoiceRoomConsumptionController::class, 'index'])->name('index');
+            Route::post('/', [InvoiceRoomConsumptionController::class, 'store'])->name('store');
+            Route::get('/{id}', [InvoiceRoomConsumptionController::class, 'show'])->name('show');
+            Route::put('/{id}', [InvoiceRoomConsumptionController::class, 'update'])->name('update');
+            Route::delete('/{id}', [InvoiceRoomConsumptionController::class, 'destroy'])->name('destroy');
         });
 
         Route::group(['as' => 'payments.', 'prefix' => 'payments'], function () {

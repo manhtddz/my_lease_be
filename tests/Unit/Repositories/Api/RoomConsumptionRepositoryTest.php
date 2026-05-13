@@ -15,6 +15,7 @@ class RoomConsumptionRepositoryTest extends TestCase
         $this->assertIsString($content);
         $this->assertStringContainsString('class RoomConsumptionRepository extends CustomRepository', $content);
         $this->assertStringContainsString('protected $model = RoomConsumption::class;', $content);
+        $this->assertStringContainsString("data_get(\$dataSearch, 'occupied_unit_price')", $content);
         $this->assertStringContainsString("data_get(\$dataSearch, 'note')", $content);
         $this->assertStringContainsString("whereLike(\$this->modelField('note')", $content);
         $this->assertStringContainsString("data_get(\$dataSearch, 'billing_month')", $content);

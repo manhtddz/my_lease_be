@@ -28,6 +28,7 @@ class RoomConsumptionUpdateFormRequest extends FormRequest
             'water_old' => ['sometimes', 'numeric'],
             'water_new' => ['sometimes', 'numeric'],
             'water_unit_price' => ['sometimes', 'numeric'],
+            'occupied_unit_price' => ['nullable', 'numeric'],
             'start_occupied_date' => ['nullable', 'date'],
             'stop_occupied_date' => ['nullable', 'date'],
             'note' => ['nullable', 'string'],

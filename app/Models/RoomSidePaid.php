@@ -38,4 +38,9 @@ class RoomSidePaid extends CustomModel
     {
         return $this->belongsTo(Tenant::class, 'tenant_id');
     }
+
+    public function invoiceItems()
+    {
+        return $this->hasMany(InvoiceItem::class, 'room_side_paid_id');
+    }
 }

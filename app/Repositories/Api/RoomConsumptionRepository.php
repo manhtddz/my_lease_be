@@ -22,6 +22,7 @@ class RoomConsumptionRepository extends CustomRepository
         $waterUnitPrice = data_get($dataSearch, 'water_unit_price');
         $startOccupiedDate = data_get($dataSearch, 'start_occupied_date');
         $stopOccupiedDate = data_get($dataSearch, 'stop_occupied_date');
+        $occupiedUnitPrice = data_get($dataSearch, 'occupied_unit_price');
         $note = data_get($dataSearch, 'note');
 
         $q = $this->select(['*'])
@@ -57,6 +58,9 @@ class RoomConsumptionRepository extends CustomRepository
             })
             ->when($stopOccupiedDate, function ($query) use ($stopOccupiedDate) {
                 $query->where($this->modelField('stop_occupied_date'), $stopOccupiedDate);
+            })
+            ->when($occupiedUnitPrice !== null && $occupiedUnitPrice !== '', function ($query) use ($occupiedUnitPrice) {
+                $query->where($this->modelField('occupied_unit_price'), $occupiedUnitPrice);
             })
             ->when($note, function ($query) use ($note) {
                 $query->whereLike($this->modelField('note'), $note);

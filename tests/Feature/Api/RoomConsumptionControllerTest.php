@@ -11,5 +11,8 @@ class RoomConsumptionControllerTest extends TestCase
         $this->assertFileExists(base_path('app/Http/Controllers/Api/RoomConsumptionController.php'));
         $this->assertFileExists(base_path('app/Validators/Api/RoomConsumption/RoomConsumptionCreateFormRequest.php'));
         $this->assertFileExists(base_path('app/Validators/Api/RoomConsumption/RoomConsumptionUpdateFormRequest.php'));
+
+        $create = file_get_contents(base_path('app/Validators/Api/RoomConsumption/RoomConsumptionCreateFormRequest.php'));
+        $this->assertStringContainsString('occupied_unit_price', $create);
     }
 }

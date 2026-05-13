@@ -4,24 +4,17 @@ namespace App\Models;
 
 use App\Models\Base\CustomModel;
 
-class Debt extends CustomModel
+class InvoiceRoomConsumption extends CustomModel
 {
-    protected $table = 'debts';
+    protected $table = 'invoice_room_consumptions';
 
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'modified_at';
 
     protected $fillable = [
         'invoice_id',
-        'tenant_id',
-        'original_amount',
-        'paid_amount',
-        'remaining_amount',
-        'penalty_amount',
-        'debt_type', // 1: Owner Debt, 2: Tenant Debt
-        'due_date',
-        'status',
-        'note',
+        'room_consumption_id',
+        'allocated_amount',
         'del_flag'
     ];
 
@@ -36,13 +29,8 @@ class Debt extends CustomModel
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
-    public function tenant()
+    public function roomConsumption()
     {
-        return $this->belongsTo(Tenant::class, 'tenant_id');
-    }
-
-    public function invoiceItems()
-    {
-        return $this->hasMany(InvoiceItem::class, 'debt_id');
+        return $this->belongsTo(RoomConsumption::class, 'room_consumption_id');
     }
 }

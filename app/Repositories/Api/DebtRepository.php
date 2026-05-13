@@ -16,6 +16,8 @@ class DebtRepository extends CustomRepository
         $originalAmount = data_get($dataSearch, 'original_amount');
         $paidAmount = data_get($dataSearch, 'paid_amount');
         $remainingAmount = data_get($dataSearch, 'remaining_amount');
+        $penaltyAmount = data_get($dataSearch, 'penalty_amount');
+        $debtType = data_get($dataSearch, 'debt_type');
         $dueDate = data_get($dataSearch, 'due_date');
         $status = data_get($dataSearch, 'status');
         $note = data_get($dataSearch, 'note');
@@ -27,14 +29,20 @@ class DebtRepository extends CustomRepository
             ->when($tenantId, function ($query) use ($tenantId) {
                 $query->where($this->modelField('tenant_id'), $tenantId);
             })
-            ->when($originalAmount, function ($query) use ($originalAmount) {
+            ->when($originalAmount !== null && $originalAmount !== '', function ($query) use ($originalAmount) {
                 $query->where($this->modelField('original_amount'), $originalAmount);
             })
-            ->when($paidAmount, function ($query) use ($paidAmount) {
+            ->when($paidAmount !== null && $paidAmount !== '', function ($query) use ($paidAmount) {
                 $query->where($this->modelField('paid_amount'), $paidAmount);
             })
-            ->when($remainingAmount, function ($query) use ($remainingAmount) {
+            ->when($remainingAmount !== null && $remainingAmount !== '', function ($query) use ($remainingAmount) {
                 $query->where($this->modelField('remaining_amount'), $remainingAmount);
+            })
+            ->when($penaltyAmount !== null && $penaltyAmount !== '', function ($query) use ($penaltyAmount) {
+                $query->where($this->modelField('penalty_amount'), $penaltyAmount);
+            })
+            ->when($debtType !== null && $debtType !== '', function ($query) use ($debtType) {
+                $query->where($this->modelField('debt_type'), $debtType);
             })
             ->when($dueDate, function ($query) use ($dueDate) {
                 $query->where($this->modelField('due_date'), $dueDate);

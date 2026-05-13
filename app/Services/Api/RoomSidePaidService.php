@@ -32,7 +32,9 @@ class RoomSidePaidService extends CustomService
 
     public function getById($id)
     {
-        return $this->roomSidePaidRepository->find($id);
+        return $this->roomSidePaidRepository->newQuery()
+            ->with(['invoiceItems', 'room', 'tenant'])
+            ->find($id);
     }
 
     public function update($id, $params)

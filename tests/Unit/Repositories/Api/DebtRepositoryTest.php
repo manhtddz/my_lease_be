@@ -15,6 +15,8 @@ class DebtRepositoryTest extends TestCase
         $this->assertIsString($content);
         $this->assertStringContainsString('class DebtRepository extends CustomRepository', $content);
         $this->assertStringContainsString('protected $model = Debt::class;', $content);
+        $this->assertStringContainsString("data_get(\$dataSearch, 'debt_type')", $content);
+        $this->assertStringContainsString("data_get(\$dataSearch, 'penalty_amount')", $content);
         $this->assertStringContainsString("data_get(\$dataSearch, 'note')", $content);
         $this->assertStringContainsString("whereLike(\$this->modelField('note')", $content);
         $this->assertStringContainsString("data_get(\$dataSearch, 'status')", $content);
