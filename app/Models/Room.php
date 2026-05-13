@@ -18,7 +18,7 @@ class Room extends CustomModel
         'room_type',
         'room_price',
         'max_occupants',
-        'status',
+        'status', // 0. Available, 1. Partially Occupied, 2. Fully Occupied, 3. Reserved
         'del_flag'
     ];
 

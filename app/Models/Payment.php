@@ -17,7 +17,7 @@ class Payment extends CustomModel
         'payment_amount',
         'payment_date',
         'payment_method',
-        'payment_status',
+        'payment_status', // 1. Active, 0. Cancelled
         'note',
         'del_flag'
     ];

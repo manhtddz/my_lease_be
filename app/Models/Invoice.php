@@ -15,7 +15,7 @@ class Invoice extends CustomModel
         'room_id',
         'representative_tenant_id',
         'total_amount',
-        'payment_status',
+        'payment_status', // 1. Initial, 2. Paid, 3. Partially Paid, 4. Not Paid Overdue
         'note',
         'del_flag'
     ];

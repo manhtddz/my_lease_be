@@ -20,7 +20,7 @@ class Debt extends CustomModel
         'penalty_amount',
         'debt_type', // 1: Owner Debt, 2: Tenant Debt
         'due_date',
-        'status',
+        'status', // 1. Active, 0. Cancelled
         'note',
         'del_flag'
     ];

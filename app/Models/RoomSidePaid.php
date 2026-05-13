@@ -17,8 +17,8 @@ class RoomSidePaid extends CustomModel
         'name',
         'amount',
         'issue_date',
-        'paid_by',
-        'status',
+        'paid_by', // 1. Owner, 2. Tenant
+        'status', // 1. Active, 0. Cancelled
         'note',
         'del_flag'
     ];
