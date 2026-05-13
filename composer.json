@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "bensampo/laravel-enum": "^6.12",
+        "dedoc/scramble": "^0.13.22",
         "jenssegers/agent": "*",
         "kyslik/column-sortable": "*",
         "laravel/framework": "^12.0",
