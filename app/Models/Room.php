@@ -15,7 +15,7 @@ class Room extends CustomModel
     protected $fillable = [
         'room_number',
         'floor',
-        'room_type',
+        'room_type', // 1. Single, 2. Double, 3. Triple, 4. Quadruple, 5. Family
         'room_price',
         'max_occupants',
         'status', // 0. Available, 1. Partially Occupied, 2. Fully Occupied, 3. Reserved

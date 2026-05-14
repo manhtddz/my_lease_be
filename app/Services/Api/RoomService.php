@@ -2,6 +2,7 @@
 
 namespace App\Services\Api;
 
+use App\Enums\RoomStatusEnum;
 use App\Repositories\Api\RoomRepository;
 use App\Services\CustomService;
 
@@ -21,6 +22,9 @@ class RoomService extends CustomService
     public function store($params)
     {
         try {
+            if (empty($params['status'])) {
+                $params['status'] = RoomStatusEnum::AVAILABLE;
+            }
             $this->roomRepository->create($params);
         } catch (\Throwable $exception) {
             logError($exception->getMessage());
@@ -38,6 +42,9 @@ class RoomService extends CustomService
     public function update($id, $params)
     {
         try {
+            if (empty($params['status'])) {
+                $params['status'] = RoomStatusEnum::AVAILABLE;
+            }
             $this->roomRepository->update($id, $params);
         } catch (\Throwable $exception) {
             logError($exception->getMessage());
