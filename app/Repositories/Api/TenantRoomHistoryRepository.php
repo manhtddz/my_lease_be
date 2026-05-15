@@ -44,4 +44,15 @@ class TenantRoomHistoryRepository extends CustomRepository
 
         return $q->paginate(getConstant('PER_PAGE_DEFAULT'));
     }
+
+    public function getOccupiedByRoomIdAndTenantId($roomId, $tenantId)
+    {
+        return $this->where([
+            'room_id' => $roomId,
+            'tenant_id' => $tenantId,
+        ])->where(function ($query) {
+            $query->whereNull($this->modelField('move_out_date'))
+                ->orWhere($this->modelField('move_out_date'), '>=', now());
+        })->first();
+    }
 }
