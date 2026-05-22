@@ -58,4 +58,18 @@ class TenantService extends CustomService
 
         return true;
     }
+
+    public function storeAndAssign($params, $roomId)
+    {
+        try {
+            $tenant = $this->tenantRepository->create($params);
+            $tenant->roomHistories()->attach([
+                $roomId => ['move_in_date' => now(), 'is_representative' => $params['is_representative'], 'note' => $params['note']]
+            ]);
+        } catch (\Throwable $exception) {
+            logInfo($exception->getMessage());
+            return false;
+        }
+        return true;
+    }
 }

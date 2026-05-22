@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Services\Api\RoomService;
 use App\Services\Api\TenantService;
+use App\Validators\Api\Tenant\TenantCreateAndAssignFormRequest;
 use App\Validators\Api\Tenant\TenantCreateFormRequest;
 use App\Validators\Api\Tenant\TenantUpdateFormRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,7 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 class TenantController extends BaseApiController
 {
     public function __construct(
-        public TenantService $tenantService
+        public TenantService $tenantService,
+        public RoomService $roomService,
     ) {
         parent::__construct();
     }
@@ -70,5 +73,24 @@ class TenantController extends BaseApiController
         }
 
         return $this->error(__('messages.delete_failed'));
+    }
+
+    public function storeAndAssign(TenantCreateAndAssignFormRequest $request)
+    {
+        $params = $request->validated();
+        $roomId = $params['room_id'];
+        $room = $this->roomService->getById($roomId);
+
+        if (empty($room)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $create = $this->tenantService->storeAndAssign($params, $roomId);
+
+        if ($create) {
+            return $this->success($create, __('messages.delete_success'));
+        }
+
+        return $this->error(__('messages.create_failed'));
     }
 }
