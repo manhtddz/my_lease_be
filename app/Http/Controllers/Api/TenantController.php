@@ -88,7 +88,7 @@ class TenantController extends BaseApiController
         $create = $this->tenantService->storeAndAssign($params, $roomId);
 
         if ($create) {
-            return $this->success($create, __('messages.delete_success'));
+            return $this->success($create, __('messages.create_success'));
         }
 
         return $this->error(__('messages.create_failed'));

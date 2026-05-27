@@ -5,6 +5,7 @@ namespace App\Validators\Api\Tenant;
 use App\Models\Tenant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Enums\IsPresentativeEnum;
 
 class TenantCreateAndAssignFormRequest extends FormRequest
 {
@@ -21,6 +22,7 @@ class TenantCreateAndAssignFormRequest extends FormRequest
                 ->where('del_flag', getConfig('deleted_flag.off'))],
             'id_card_number' => ['required', 'string', 'max:30', Rule::unique(Tenant::getTableName(), 'id_card_number')
                 ->where('del_flag', getConfig('deleted_flag.off'))],
+            'is_representative' => ['required', Rule::in(IsPresentativeEnum::getValues())],
             'room_id' => [
                 'required',
                 'integer',
