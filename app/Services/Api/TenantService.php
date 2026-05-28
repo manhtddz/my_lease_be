@@ -4,6 +4,8 @@ namespace App\Services\Api;
 
 use App\Repositories\Api\TenantRepository;
 use App\Services\CustomService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TenantService extends CustomService
 {
@@ -56,6 +58,27 @@ class TenantService extends CustomService
             return false;
         }
 
+        return true;
+    }
+
+    public function storeAndAssign($params, $roomId)
+    {
+        DB::beginTransaction();
+        try {
+            $tenant = $this->tenantRepository->create($params);
+            $tenant->roomHistories()->attach([
+                $roomId => [
+                    'move_in_date' => Carbon::now(),
+                    'is_representative' => $params['is_representative'],
+                    'note' => $params['note']
+                ]
+            ]);
+            DB::commit();
+        } catch (\Throwable $exception) {
+            logInfo($exception->getMessage());
+            DB::rollBack();
+            return false;
+        }
         return true;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Validators\Api\Tenant;
 
+use App\Models\Tenant;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TenantCreateFormRequest extends FormRequest
 {
@@ -15,8 +17,10 @@ class TenantCreateFormRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'phone_number' => ['required', 'string', 'max:30'],
-            'id_card_number' => ['required', 'string', 'max:30'],
+            'phone_number' => ['required', 'string', 'max:30', Rule::unique(Tenant::getTableName(), 'phone_number')
+                ->where('del_flag', getConfig('deleted_flag.off'))],
+            'id_card_number' => ['required', 'string', 'max:30', Rule::unique(Tenant::getTableName(), 'id_card_number')
+                ->where('del_flag', getConfig('deleted_flag.off'))],
         ];
     }
 }

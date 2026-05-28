@@ -14,6 +14,10 @@ class TenantRepository extends CustomRepository
         $name = data_get($dataSearch, 'name');
         $phoneNumber = data_get($dataSearch, 'phone_number');
         $idCardNumber = data_get($dataSearch, 'id_card_number');
+        $sortBy = data_get($dataSearch, 'sort_by', 'id');
+        $sortDir = data_get($dataSearch, 'sort_dir', 'asc');
+        $size = data_get($dataSearch, 'size', getConstant('PER_PAGE_DEFAULT'));
+
 
         $q = $this->select(['*'])
             ->when($name, function ($query) use ($name) {
@@ -24,8 +28,9 @@ class TenantRepository extends CustomRepository
             })
             ->when($idCardNumber, function ($query) use ($idCardNumber) {
                 $query->whereLike($this->modelField('id_card_number'), $idCardNumber);
-            });
+            })
+            ->orderBy($sortBy, $sortDir);
 
-        return $q->paginate(getConstant('PER_PAGE_DEFAULT'));
+        return $q->paginate($size);
     }
 }

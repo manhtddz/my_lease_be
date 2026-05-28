@@ -15,7 +15,7 @@ class Room extends CustomModel
     protected $fillable = [
         'room_number',
         'floor',
-        'room_type',
+        'room_type', // 1. Single, 2. Double, 3. Triple, 4. Quadruple, 5. Family
         'room_price',
         'max_occupants',
         'status', // 0. Available, 1. Partially Occupied, 2. Fully Occupied, 3. Reserved
@@ -50,5 +50,22 @@ class Room extends CustomModel
     public function sidePaids()
     {
         return $this->hasMany(RoomSidePaid::class, 'room_id');
+    }
+
+    public function currentTenants()
+    {
+        return $this->belongsToMany(Tenant::class, TenantRoomHistory::getTableName(), 'room_id', 'tenant_id')
+            ->withPivot('move_in_date', 'move_out_date', 'is_representative', 'room_price_snapshot', 'note')
+            ->where(function ($query) {
+                $query->whereNull(TenantRoomHistory::field('move_out_date'))
+                    ->orWhere(TenantRoomHistory::field('move_out_date'), '>', now());
+            });
+    }
+
+    public function currentTenantHistories()
+    {
+        return $this->hasMany(TenantRoomHistory::class, 'room_id')
+            ->whereNull(TenantRoomHistory::field('move_out_date'))
+            ->orWhere(TenantRoomHistory::field('move_out_date'), '>=', now());
     }
 }

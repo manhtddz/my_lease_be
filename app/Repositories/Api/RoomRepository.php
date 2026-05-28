@@ -16,6 +16,9 @@ class RoomRepository extends CustomRepository
         $roomType = data_get($dataSearch, 'room_type');
         $maxOccupants = data_get($dataSearch, 'max_occupants');
         $status = data_get($dataSearch, 'status');
+        $sortBy = data_get($dataSearch, 'sort_by', 'id');
+        $sortDir = data_get($dataSearch, 'sort_dir', 'asc');
+        $size = data_get($dataSearch, 'size', getConstant('PER_PAGE_DEFAULT'));
 
         $q = $this->select(['*'])
             ->when($roomNumber, function ($query) use ($roomNumber) {
@@ -25,15 +28,15 @@ class RoomRepository extends CustomRepository
                 $query->whereLike($this->modelField('floor'), $floor);
             })
             ->when($roomType, function ($query) use ($roomType) {
-                $query->whereLike($this->modelField('room_type'), $roomType);
+                $query->whereIn($this->modelField('room_type'), $roomType);
             })
             ->when($maxOccupants, function ($query) use ($maxOccupants) {
                 $query->where($this->modelField('max_occupants'), $maxOccupants);
             })
             ->when($status, function ($query) use ($status) {
-                $query->where($this->modelField('status'), $status);
+                $query->whereIn($this->modelField('status'), $status);
             });
 
-        return $q->paginate(getConstant('PER_PAGE_DEFAULT'));
+        return $q->orderBy($sortBy, $sortDir)->paginate($size);
     }
 }

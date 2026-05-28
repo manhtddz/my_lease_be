@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Services\Api\RoomService;
+use App\Services\Api\TenantService;
 use App\Validators\Api\Room\RoomCreateFormRequest;
 use App\Validators\Api\Room\RoomUpdateFormRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,7 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 class RoomController extends BaseApiController
 {
     public function __construct(
-        public RoomService $roomService
+        public RoomService $roomService,
+        public TenantService $tenantService
     ) {
         parent::__construct();
     }
@@ -70,5 +72,52 @@ class RoomController extends BaseApiController
         }
 
         return $this->error(__('messages.delete_failed'));
+    }
+
+    public function getCurrentOccupants($id)
+    {
+        $room = $this->roomService->getById($id);
+        if (empty($room)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $currentOccupants = $this->roomService->getCurrentTenants($room);
+
+        return $this->success([
+            'data' => $currentOccupants,
+        ], __('messages.success'));
+    }
+
+    public function moveOut($roomId, $tenantId)
+    {
+        $room = $this->roomService->getById($roomId);
+        if (empty($room)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $tenant = $this->tenantService->getById($tenantId);
+        if (empty($tenant)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $moveOut = $this->roomService->moveOut($roomId, $tenantId);
+        if ($moveOut) {
+            return $this->success($moveOut, __('messages.move_out_success'));
+        }
+
+        return $this->error(__('messages.move_out_failed'));    
+    }
+
+    public function moveOutAll($roomId)
+    {
+        $room = $this->roomService->getById($roomId);
+        if (empty($room)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $moveOut = $this->roomService->moveOutAll($room);
+        if ($moveOut) {
+            return $this->success($moveOut, __('messages.move_out_success'));
+        }
     }
 }
