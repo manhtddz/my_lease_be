@@ -3,6 +3,7 @@
 namespace App\Repositories\Api;
 
 use App\Models\Debt;
+use App\Models\Tenant;
 use App\Repositories\CustomRepository;
 
 class DebtRepository extends CustomRepository
@@ -13,6 +14,7 @@ class DebtRepository extends CustomRepository
     {
         $invoiceId = data_get($dataSearch, 'invoice_id');
         $tenantId = data_get($dataSearch, 'tenant_id');
+        $tenantName = data_get($dataSearch, 'tenant_name');
         $originalAmount = data_get($dataSearch, 'original_amount');
         $paidAmount = data_get($dataSearch, 'paid_amount');
         $remainingAmount = data_get($dataSearch, 'remaining_amount');
@@ -21,13 +23,29 @@ class DebtRepository extends CustomRepository
         $dueDate = data_get($dataSearch, 'due_date');
         $status = data_get($dataSearch, 'status');
         $note = data_get($dataSearch, 'note');
+        $sortBy = data_get($dataSearch, 'sort_by', 'id');
+        $sortDir = data_get($dataSearch, 'sort_dir', 'asc');
+        $size = data_get($dataSearch, 'size', getConstant('PER_PAGE_DEFAULT'));
 
-        $q = $this->select(['*'])
+        $q = $this->with([
+            'tenant' => function ($query) {
+                $query->select([
+                    Tenant::field('id'),
+                    Tenant::field('name'),
+                ]);
+            },
+        ])
+        ->select(['*'])
             ->when($invoiceId, function ($query) use ($invoiceId) {
                 $query->where($this->modelField('invoice_id'), $invoiceId);
             })
             ->when($tenantId, function ($query) use ($tenantId) {
                 $query->where($this->modelField('tenant_id'), $tenantId);
+            })
+            ->when($tenantName, function ($query) use ($tenantName) {
+                $query->whereHas('tenant', function ($qTenant) use ($tenantName) {
+                    $qTenant->whereLike(Tenant::field('name'), $tenantName); 
+                });
             })
             ->when($originalAmount !== null && $originalAmount !== '', function ($query) use ($originalAmount) {
                 $query->where($this->modelField('original_amount'), $originalAmount);
@@ -47,13 +65,13 @@ class DebtRepository extends CustomRepository
             ->when($dueDate, function ($query) use ($dueDate) {
                 $query->where($this->modelField('due_date'), $dueDate);
             })
-            ->when($status, function ($query) use ($status) {
+            ->when(!blank($status), function ($query) use ($status) {
                 $query->where($this->modelField('status'), $status);
             })
             ->when($note, function ($query) use ($note) {
                 $query->whereLike($this->modelField('note'), $note);
             });
 
-        return $q->paginate(getConstant('PER_PAGE_DEFAULT'));
+        return $q->orderBy($sortBy, $sortDir)->paginate($size);
     }
 }
