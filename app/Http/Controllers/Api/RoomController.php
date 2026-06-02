@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Services\Api\RoomService;
+use App\Services\Api\TenantRoomHistoryService;
 use App\Services\Api\TenantService;
+use App\Validators\Api\Room\MoveOutFormRequest;
 use App\Validators\Api\Room\RoomCreateFormRequest;
 use App\Validators\Api\Room\RoomUpdateFormRequest;
+use App\Validators\Api\TenantRoomHistory\TransferToRoomFormRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class RoomController extends BaseApiController
 {
     public function __construct(
         public RoomService $roomService,
-        public TenantService $tenantService
+        public TenantService $tenantService,
+        public TenantRoomHistoryService $tenantRoomHistoryService
     ) {
         parent::__construct();
     }
@@ -88,24 +92,25 @@ class RoomController extends BaseApiController
         ], __('messages.success'));
     }
 
-    public function moveOut($roomId, $tenantId)
+    public function moveOut(MoveOutFormRequest $request, $roomId)
     {
         $room = $this->roomService->getById($roomId);
         if (empty($room)) {
             return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
         }
 
-        $tenant = $this->tenantService->getById($tenantId);
-        if (empty($tenant)) {
-            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
-        }
+        $tenantIds = $request->validated()['tenantIds'];
 
-        $moveOut = $this->roomService->moveOut($roomId, $tenantId);
-        if ($moveOut) {
-            return $this->success($moveOut, __('messages.move_out_success'));
-        }
+        try {
+            $this->tenantRoomHistoryService->moveTenantsOut($tenantIds, $roomId);
 
-        return $this->error(__('messages.move_out_failed'));    
+            return $this->success(null, __('messages.move_out_success'));
+        } catch (\InvalidArgumentException $e) {
+            return $this->error($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Throwable $e) {
+            logError($e->getMessage());
+            return $this->error(__('messages.move_out_failed'));
+        }
     }
 
     public function moveOutAll($roomId)
@@ -115,9 +120,31 @@ class RoomController extends BaseApiController
             return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
         }
 
-        $moveOut = $this->roomService->moveOutAll($room);
+        $moveOut = $this->tenantRoomHistoryService->moveOutAll($room);
         if ($moveOut) {
             return $this->success($moveOut, __('messages.move_out_success'));
+        }
+    }
+
+    public function transferToRoom(TransferToRoomFormRequest $request, $sourceRoomId, $destRoomId)
+    {
+        $params = $request->validated();
+        $consumptionData = [
+            'electricityUnitPrice' => $params['electricityUnitPrice'] ?? null,
+            'waterUnitPrice' => $params['waterUnitPrice'] ?? null,
+            'occupiedUnitPrice' => $params['occupiedUnitPrice'] ?? null,
+            'note' => $params['note'] ?? null,
+        ];
+
+        try {
+            $this->tenantRoomHistoryService->transferTenantToRoom($params['tenantIds'], $sourceRoomId, $destRoomId, $consumptionData);
+
+            return $this->success(null, __('messages.success'));
+        } catch (\InvalidArgumentException $e) {
+            return $this->error($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Throwable $e) {
+            logError($e->getMessage());
+            return $this->error(__('messages.error'));
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\IsPresentativeEnum;
 use App\Models\Base\CustomModel;
 
 class TenantRoomHistory extends CustomModel
@@ -37,4 +38,8 @@ class TenantRoomHistory extends CustomModel
     {
         return $this->belongsTo(Room::class, 'room_id');
     }
+
+    protected $casts = [
+        'is_representative' => IsPresentativeEnum::class,
+    ];
 }

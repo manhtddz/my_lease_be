@@ -100,8 +100,9 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::put('/{id}', [RoomController::class, 'update'])->name('update');
             Route::delete('/{id}', [RoomController::class, 'destroy'])->name('destroy');
             Route::get('/{id}/current-occupants', [RoomController::class, 'getCurrentOccupants'])->name('getCurrentOccupants');
-            Route::put('/{roomId}/tenants/{tenantId}/move-out', [RoomController::class, 'moveOut'])->name('moveOut');
+            Route::put('/{roomId}/tenants/move-out', [RoomController::class, 'moveOut'])->name('moveOut');
             Route::put('/{roomId}/move-out-all', [RoomController::class, 'moveOutAll'])->name('moveOutAll');
+            Route::put('/{sourceRoomId}/transfer-to/{destRoomId}', [RoomController::class, 'transferToRoom'])->name('transferToRoom');
         });
 
         Route::group(['as' => 'tenants.', 'prefix' => 'tenants'], function () {
