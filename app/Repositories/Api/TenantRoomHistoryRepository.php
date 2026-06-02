@@ -45,14 +45,22 @@ class TenantRoomHistoryRepository extends CustomRepository
         return $q->paginate(getConstant('PER_PAGE_DEFAULT'));
     }
 
-    public function getOccupiedByRoomIdAndTenantId($roomId, $tenantId)
+    public function getOccupiedByRoomIdAndTenantId($tenantIds, $roomId)
     {
-        return $this->where([
-            'room_id' => $roomId,
-            'tenant_id' => $tenantId,
-        ])->where(function ($query) {
-            $query->whereNull($this->modelField('move_out_date'))
-                ->orWhere($this->modelField('move_out_date'), '>=', now());
-        })->first();
+        return $this->where('room_id', $roomId)
+            ->whereIn('tenant_id', $tenantIds)
+            ->where(function ($query) {
+                $query->whereNull($this->modelField('move_out_date'))
+                    ->orWhere($this->modelField('move_out_date'), '>=', now());
+            })->get();
+    }
+
+    public function countActiveTenantsInRoom($roomId)
+    {
+        return $this->where($this->modelField('room_id'), $roomId)
+            ->where(function ($query) {
+                $query->whereNull($this->modelField('move_out_date'))
+                    ->orWhere($this->modelField('move_out_date'), '>=', now());
+            })->count();
     }
 }

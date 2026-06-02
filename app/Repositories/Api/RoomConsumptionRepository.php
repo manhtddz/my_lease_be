@@ -68,4 +68,22 @@ class RoomConsumptionRepository extends CustomRepository
 
         return $q->paginate(getConstant('PER_PAGE_DEFAULT'));
     }
+
+    public function getLatestConsumptionByRoomId($roomId)
+    {
+        return $this->where($this->modelField('room_id'), $roomId)
+            ->whereNotNull($this->modelField('stop_occupied_date'))
+            ->orderBy($this->modelField('billing_year'), 'desc')
+            ->orderBy($this->modelField('billing_month'), 'desc')
+            ->first();
+    }
+
+    public function getActiveConsumptionByRoomId($roomId)
+    {
+        return $this->where($this->modelField('room_id'), $roomId)
+            ->where($this->modelField('billing_year'), now()->year)
+            ->where($this->modelField('billing_month'), now()->month)
+            ->whereNull($this->modelField('stop_occupied_date'))
+            ->first();
+    }
 }

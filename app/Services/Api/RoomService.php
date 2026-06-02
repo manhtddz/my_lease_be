@@ -74,36 +74,4 @@ class RoomService extends CustomService
     {
         return $room->currentTenants()->get();
     }
-
-    public function moveOut($roomId, $tenantId)
-    {
-        try {
-            $history = $this->tenantRoomHistoryRepository->getOccupiedByRoomIdAndTenantId($roomId, $tenantId);
-
-            if (empty($history)) {
-                return false;
-            }
-
-            $this->tenantRoomHistoryRepository->update($history->id, [
-                'move_out_date' => now(),
-            ]);
-        } catch (\Throwable $exception) {
-            logError($exception->getMessage());
-            return false;
-        }
-
-        return true;
-    }
-
-    public function moveOutAll(Room $room)
-    {
-        try {
-            $room->currentTenantHistories()->update([
-                'move_out_date' => now(),
-            ]);
-        } catch (\Throwable $exception) {
-            logError($exception->getMessage());
-            return false;
-        }
-    }
 }
