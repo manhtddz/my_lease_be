@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Api;
 
+use App\Enums\IsPresentativeEnum;
 use App\Models\TenantRoomHistory;
 use App\Repositories\CustomRepository;
 
@@ -62,5 +63,35 @@ class TenantRoomHistoryRepository extends CustomRepository
                 $query->whereNull($this->modelField('move_out_date'))
                     ->orWhere($this->modelField('move_out_date'), '>=', now());
             })->count();
+    }
+
+    public function hasRepresentativeInRoom($roomId)
+    {
+        return $this->where($this->modelField('room_id'), $roomId)
+            ->where($this->modelField('is_representative'), IsPresentativeEnum::TRUE)
+            ->where(function ($query) {
+                $query->whereNull($this->modelField('move_out_date'))
+                    ->orWhere($this->modelField('move_out_date'), '>=', now());
+            })->exists();
+    }
+
+    public function getRepresentativeInRoom($roomId)
+    {
+        return $this->where($this->modelField('room_id'), $roomId)
+            ->where($this->modelField('is_representative'), IsPresentativeEnum::TRUE)
+            ->where(function ($query) {
+                $query->whereNull($this->modelField('move_out_date'))
+                    ->orWhere($this->modelField('move_out_date'), '>=', now());
+            })->first();
+    }
+
+    public function getTenantHistoryByRoomIdAndTenantId($roomId, $tenantId)
+    {
+        return $this->where($this->modelField('room_id'), $roomId)
+            ->where($this->modelField('tenant_id'), $tenantId)
+            ->where(function ($query) {
+                $query->whereNull($this->modelField('move_out_date'))
+                    ->orWhere($this->modelField('move_out_date'), '>=', now());
+            })->first(); 
     }
 }

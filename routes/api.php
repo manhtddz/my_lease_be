@@ -111,7 +111,8 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::get('/{id}', [TenantController::class, 'show'])->name('show');
             Route::put('/{id}', [TenantController::class, 'update'])->name('update');
             Route::delete('/{id}', [TenantController::class, 'destroy'])->name('destroy');
-            Route::post('/storeAndAssign', [TenantController::class, 'storeAndAssign'])->name('storeAndAssign');
+            Route::post('/store-and-assign', [TenantController::class, 'storeAndAssign'])->name('storeAndAssign');
+            Route::put('/{tenantId}/{roomId}/set-representation', [TenantController::class, 'setRepresentation'])->name('setRepresentation');
         });
 
         Route::group(['as' => 'tenantRoomHistories.', 'prefix' => 'tenant-room-histories'], function () {

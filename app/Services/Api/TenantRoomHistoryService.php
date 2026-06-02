@@ -7,6 +7,7 @@ use App\Models\Room;
 use App\Repositories\Api\TenantRoomHistoryRepository;
 use App\Services\CustomService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TenantRoomHistoryService extends CustomService
 {
@@ -68,7 +69,7 @@ class TenantRoomHistoryService extends CustomService
         $histories = $this->tenantRoomHistoryRepository->getOccupiedByRoomIdAndTenantId($tenantIds, $roomId);
 
         if ($histories->isEmpty()) {
-            throw new \InvalidArgumentException('No active tenants found in room for the given tenant IDs');
+            throw ValidationException::withMessages(['tenantIds' => [__('messages.no_data')]]);
         }
 
         $totalActive = $this->tenantRoomHistoryRepository->countActiveTenantsInRoom($roomId);
@@ -112,7 +113,7 @@ class TenantRoomHistoryService extends CustomService
         $histories = $this->tenantRoomHistoryRepository->getOccupiedByRoomIdAndTenantId($tenantIds, $sourceRoomId);
 
         if ($histories->isEmpty()) {
-            throw new \InvalidArgumentException('No active tenants found in source room for the given tenant IDs');
+            throw ValidationException::withMessages(['tenantIds' => [__('messages.no_data')]]);
         }
 
         $totalActiveInSource = $this->tenantRoomHistoryRepository->countActiveTenantsInRoom($sourceRoomId);
@@ -146,7 +147,7 @@ class TenantRoomHistoryService extends CustomService
     {
         foreach ($histories as $history) {
             if ($history->is_representative->value == IsPresentativeEnum::TRUE) {
-                throw new \InvalidArgumentException('Tenant is representative, can not move out');
+                throw ValidationException::withMessages(['tenantIds' => [__('messages.tenant_is_representative')]]);
             }
 
             $this->tenantRoomHistoryRepository->update($history->id, [

@@ -2,15 +2,19 @@
 
 namespace App\Services\Api;
 
+use App\Enums\IsPresentativeEnum;
 use App\Repositories\Api\TenantRepository;
+use App\Repositories\Api\TenantRoomHistoryRepository;
 use App\Services\CustomService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TenantService extends CustomService
 {
     public function __construct(
-        public TenantRepository $tenantRepository
+        public TenantRepository $tenantRepository,
+        public TenantRoomHistoryRepository $tenantRoomHistoryRepository,
+        public RoomConsumptionService $roomConsumptionService
     ) {
         parent::__construct();
     }
@@ -61,24 +65,55 @@ class TenantService extends CustomService
         return true;
     }
 
-    public function storeAndAssign($params, $roomId)
+    public function storeAndAssign($params, $roomId, $consumptionData = [])
     {
+        if ($params['is_representative'] && $this->tenantRoomHistoryRepository->hasRepresentativeInRoom($roomId)) {
+            throw ValidationException::withMessages(['is_representative' => [__('messages.room_already_has_representative')]]);
+        }
+
         DB::beginTransaction();
         try {
             $tenant = $this->tenantRepository->create($params);
-            $tenant->roomHistories()->attach([
-                $roomId => [
-                    'move_in_date' => Carbon::now(),
-                    'is_representative' => $params['is_representative'],
-                    'note' => $params['note']
-                ]
+
+            $this->tenantRoomHistoryRepository->create([
+                'tenant_id' => $tenant->id,
+                'room_id' => $roomId,
+                'move_in_date' => now(),
+                'is_representative' => $params['is_representative'],
+                'note' => $params['note'] ?? null,
             ]);
+
+            $activeConsumption = $this->roomConsumptionService->getActiveConsumptionByRoomId($roomId);
+            if (!$activeConsumption) {
+                $this->roomConsumptionService->startConsumption($roomId, $consumptionData);
+            }
+
             DB::commit();
+            return true;
         } catch (\Throwable $exception) {
-            logInfo($exception->getMessage());
             DB::rollBack();
-            return false;
+            throw $exception;
         }
-        return true;
+    }
+
+    public function setRepresentation($tenantId, $roomId)
+    {
+        $representTenant = $this->tenantRoomHistoryRepository->getRepresentativeInRoom($roomId);
+
+        $targetTenant = $this->tenantRoomHistoryRepository->getTenantHistoryByRoomIdAndTenantId($roomId, $tenantId);
+
+        DB::beginTransaction();
+        try {
+            if ($representTenant) {
+                $representTenant->update(['is_representative' => IsPresentativeEnum::FALSE]);
+            }
+            $targetTenant->update(['is_representative' => IsPresentativeEnum::TRUE]);
+
+            DB::commit();
+            return true;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
     }
 }
