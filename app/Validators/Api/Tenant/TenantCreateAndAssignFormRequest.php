@@ -28,7 +28,10 @@ class TenantCreateAndAssignFormRequest extends FormRequest
                 'integer',
                 Rule::exists('rooms', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
-            'note' => ['required', 'string', 'max:512'],
+            'note' => ['nullable', 'string', 'max:512'],
+            'electricityUnitPrice' => ['nullable', 'numeric', 'min:0'],
+            'waterUnitPrice' => ['nullable', 'numeric', 'min:0'],
+            'occupiedUnitPrice' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }

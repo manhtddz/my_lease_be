@@ -79,18 +79,44 @@ class TenantController extends BaseApiController
     {
         $params = $request->validated();
         $roomId = $params['room_id'];
-        $room = $this->roomService->getById($roomId);
 
+        $room = $this->roomService->getById($roomId);
         if (empty($room)) {
             return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
         }
 
-        $create = $this->tenantService->storeAndAssign($params, $roomId);
+        $consumptionData = [
+            'electricityUnitPrice' => $params['electricityUnitPrice'] ?? null,
+            'waterUnitPrice' => $params['waterUnitPrice'] ?? null,
+            'occupiedUnitPrice' => $params['occupiedUnitPrice'] ?? null,
+            'note' => null,
+        ];
 
-        if ($create) {
-            return $this->success($create, __('messages.create_success'));
+        try {
+            $this->tenantService->storeAndAssign($params, $roomId, $consumptionData);
+
+            return $this->success(null, __('messages.create_success'));
+        } catch (\Throwable $e) {
+            logError($e->getMessage());
+            return $this->error(__('messages.create_failed'));
+        }
+    }
+
+    public function setRepresentation($tenantId, $roomId) 
+    {
+        $room = $this->roomService->getById($roomId);
+        $tenant = $this->tenantService->getById($tenantId);
+        if (empty($room) || empty($tenant)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
         }
 
-        return $this->error(__('messages.create_failed'));
+        try {
+            $this->tenantService->setRepresentation($tenantId, $roomId);
+
+            return $this->success(null, __('messages.create_success'));
+        } catch (\Throwable $e) {
+            logError($e->getMessage());
+            return $this->error(__('messages.create_failed'));
+        }
     }
 }

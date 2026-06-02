@@ -105,8 +105,6 @@ class RoomController extends BaseApiController
             $this->tenantRoomHistoryService->moveTenantsOut($tenantIds, $roomId);
 
             return $this->success(null, __('messages.move_out_success'));
-        } catch (\InvalidArgumentException $e) {
-            return $this->error($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Throwable $e) {
             logError($e->getMessage());
             return $this->error(__('messages.move_out_failed'));
@@ -140,8 +138,6 @@ class RoomController extends BaseApiController
             $this->tenantRoomHistoryService->transferTenantToRoom($params['tenantIds'], $sourceRoomId, $destRoomId, $consumptionData);
 
             return $this->success(null, __('messages.success'));
-        } catch (\InvalidArgumentException $e) {
-            return $this->error($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Throwable $e) {
             logError($e->getMessage());
             return $this->error(__('messages.error'));
