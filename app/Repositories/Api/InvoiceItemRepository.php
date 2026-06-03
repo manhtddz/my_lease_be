@@ -9,6 +9,17 @@ class InvoiceItemRepository extends CustomRepository
 {
     protected $model = InvoiceItem::class;
 
+    public function insertMany(array $rows): void
+    {
+        $now = now();
+        $rows = array_map(fn($row) => array_merge($row, [
+            'created_at' => $now,
+            'modified_at' => $now,
+        ]), $rows);
+
+        $this->getModel()::insert($rows);
+    }
+
     public function getListForSearch($dataSearch = [])
     {
         $invoiceId = data_get($dataSearch, 'invoice_id');

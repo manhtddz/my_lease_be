@@ -2,6 +2,8 @@
 
 namespace App\Validators\Api\Payment;
 
+use App\Enums\ActiveStatusEnum;
+use App\Enums\PaymentMethodEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,8 +29,8 @@ class PaymentCreateFormRequest extends FormRequest
             ],
             'payment_amount' => ['required', 'numeric'],
             'payment_date' => ['required', 'date'],
-            'payment_method' => ['required', 'string', 'max:50'],
-            'payment_status' => ['required', 'string', 'max:50'],
+            'payment_method' => ['required', Rule::in(PaymentMethodEnum::getValues())],
+            'payment_status' => ['required', Rule::in(ActiveStatusEnum::getValues())],
             'note' => ['nullable', 'string'],
         ];
     }

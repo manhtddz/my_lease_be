@@ -2,6 +2,7 @@
 
 namespace App\Validators\Api\Invoice;
 
+use App\Enums\PaymentStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +27,7 @@ class InvoiceUpdateFormRequest extends FormRequest
                 Rule::exists('tenants', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
             'total_amount' => ['sometimes', 'numeric'],
-            'payment_status' => ['sometimes', 'string', 'max:50'],
+            'payment_status' => ['sometimes', Rule::in(PaymentStatusEnum::getValues())],
             'note' => ['nullable', 'string'],
         ];
     }

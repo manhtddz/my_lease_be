@@ -2,6 +2,8 @@
 
 namespace App\Validators\Api\Debt;
 
+use App\Enums\ActiveStatusEnum;
+use App\Enums\DebtTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,9 +31,9 @@ class DebtCreateFormRequest extends FormRequest
             'paid_amount' => ['nullable', 'numeric'],
             'remaining_amount' => ['required', 'numeric'],
             'penalty_amount' => ['nullable', 'numeric'],
-            'debt_type' => ['required', 'integer', Rule::in([1, 2])],
+            'debt_type' => ['required', 'integer', Rule::in(DebtTypeEnum::getValues())],
             'due_date' => ['required', 'date'],
-            'status' => ['required', 'string', 'max:50'],
+            'status' => ['required', Rule::in(ActiveStatusEnum::getValues())],
             'note' => ['nullable', 'string'],
         ];
     }

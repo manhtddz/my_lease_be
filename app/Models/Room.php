@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\RoomStatusEnum;
+use App\Enums\RoomTypeEnum;
 use App\Models\Base\CustomModel;
-use Illuminate\Database\Eloquent\Model;
 
 class Room extends CustomModel
 {
@@ -68,4 +69,9 @@ class Room extends CustomModel
             ->whereNull(TenantRoomHistory::field('move_out_date'))
             ->orWhere(TenantRoomHistory::field('move_out_date'), '>=', now());
     }
+
+    protected $casts = [
+        'room_type' => RoomTypeEnum::class,
+        'status'    => RoomStatusEnum::class,
+    ];
 }

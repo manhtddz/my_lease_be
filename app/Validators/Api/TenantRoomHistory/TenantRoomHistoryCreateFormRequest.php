@@ -2,6 +2,7 @@
 
 namespace App\Validators\Api\TenantRoomHistory;
 
+use App\Enums\IsPresentativeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,7 +28,7 @@ class TenantRoomHistoryCreateFormRequest extends FormRequest
             ],
             'move_in_date' => ['required', 'date'],
             'move_out_date' => ['nullable', 'date'],
-            'is_representative' => ['required', 'boolean'],
+            'is_representative' => ['required', Rule::in(IsPresentativeEnum::getValues())],
             'room_price_snapshot' => ['nullable', 'numeric'],
             'note' => ['nullable', 'string'],
         ];

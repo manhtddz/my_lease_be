@@ -4,6 +4,7 @@ namespace App\Services\Api;
 
 use App\Repositories\Api\RoomConsumptionRepository;
 use App\Services\CustomService;
+use Carbon\Carbon;
 
 class RoomConsumptionService extends CustomService
 {
@@ -110,5 +111,58 @@ class RoomConsumptionService extends CustomService
     public function getActiveConsumptionByRoomId($roomId)
     {
         return $this->roomConsumptionRepository->getActiveConsumptionByRoomId($roomId);
+    }
+
+    public function checkConsumptionBelongsToRoom($consumptionIds, $roomId)
+    {
+        $consumptionIds = (array) $consumptionIds;
+
+        if (empty($consumptionIds)) {
+            return false;
+        }
+
+        $matchCount = $this->roomConsumptionRepository
+            ->whereIn($this->roomConsumptionRepository->modelField('id'), $consumptionIds)
+            ->where($this->roomConsumptionRepository->modelField('room_id'), $roomId)
+            ->count();
+
+        return $matchCount === count($consumptionIds);
+    }
+
+    public function calculateAllConsumptionPrice($consumption)
+    {
+        if (empty($consumption)) {
+            throw new \Exception('Consumption not found');
+        }
+
+        $electricityPrice = $this->calculateElectricityPrice($consumption->electricity_old, $consumption->electricity_new, $consumption->electricity_unit_price);
+        $waterPrice = $this->calculateWaterPrice($consumption->water_old, $consumption->water_new, $consumption->water_unit_price);
+        $occupiedUnitPrice = $this->calculateOccupiedPrice($consumption->start_occupied_date, $consumption->stop_occupied_date, $consumption->occupied_unit_price);
+
+        return [
+            'electricity_price' => $electricityPrice,
+            'water_price' => $waterPrice,
+            'occupied_price' => $occupiedUnitPrice,
+        ];
+    }
+
+    public function calculateElectricityPrice($old, $new, $unitPrice)
+    {
+        return $unitPrice * ($new - $old);
+    }
+
+    public function calculateWaterPrice($old, $new, $unitPrice)
+    {
+        return $unitPrice * ($new - $old);
+    }
+
+    public function calculateOccupiedPrice($startDate, $stopDate, $unitPrice)
+    {
+        if (empty($stopDate)) {
+            return 0;
+        }
+
+        $days = Carbon::parse($startDate)->diffInDays(Carbon::parse($stopDate));
+        return $days * $unitPrice;
     }
 }

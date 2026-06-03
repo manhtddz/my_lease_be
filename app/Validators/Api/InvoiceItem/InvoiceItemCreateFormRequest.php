@@ -2,6 +2,7 @@
 
 namespace App\Validators\Api\InvoiceItem;
 
+use App\Enums\ItemTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,20 +21,20 @@ class InvoiceItemCreateFormRequest extends FormRequest
                 'integer',
                 Rule::exists('invoices', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
-            'item_type' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5])],
+            'item_type' => ['required', 'integer', Rule::in(ItemTypeEnum::getValues())],
             'item_name' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric'],
             'note' => ['nullable', 'string'],
             'debt_id' => [
                 'nullable',
                 'integer',
-                'required_if:item_type,4',
+                'required_if:item_type,' . ItemTypeEnum::DEBT,
                 Rule::exists('debts', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
             'room_side_paid_id' => [
                 'nullable',
                 'integer',
-                'required_if:item_type,5',
+                'required_if:item_type,' . ItemTypeEnum::ROOM_SIDE_PAID,
                 Rule::exists('room_side_paids', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
         ];

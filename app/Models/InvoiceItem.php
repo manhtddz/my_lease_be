@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ItemTypeEnum;
 use App\Models\Base\CustomModel;
 
 class InvoiceItem extends CustomModel
@@ -19,6 +20,7 @@ class InvoiceItem extends CustomModel
         'note',
         'debt_id',
         'room_side_paid_id',
+        'room_consumption_id',
         'del_flag'
     ];
 
@@ -33,6 +35,11 @@ class InvoiceItem extends CustomModel
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
+    public function roomConsumption()
+    {
+        return $this->belongsTo(RoomConsumption::class, 'room_consumption_id');
+    }
+
     public function debt()
     {
         return $this->belongsTo(Debt::class, 'debt_id');
@@ -42,4 +49,8 @@ class InvoiceItem extends CustomModel
     {
         return $this->belongsTo(RoomSidePaid::class, 'room_side_paid_id');
     }
+
+    protected $casts = [
+        'item_type' => ItemTypeEnum::class,
+    ];
 }

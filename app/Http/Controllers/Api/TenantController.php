@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Services\Api\RoomService;
 use App\Services\Api\TenantService;
+use App\Validators\Api\Tenant\AssignTenantToRoomFormRequest;
 use App\Validators\Api\Tenant\TenantCreateAndAssignFormRequest;
 use App\Validators\Api\Tenant\TenantCreateFormRequest;
 use App\Validators\Api\Tenant\TenantUpdateFormRequest;
@@ -112,6 +113,26 @@ class TenantController extends BaseApiController
 
         try {
             $this->tenantService->setRepresentation($tenantId, $roomId);
+
+            return $this->success(null, __('messages.create_success'));
+        } catch (\Throwable $e) {
+            logError($e->getMessage());
+            return $this->error(__('messages.create_failed'));
+        }
+    }
+
+    public function assignToRoom($tenantId, $roomId, AssignTenantToRoomFormRequest $request)
+    {
+        $params = $request->validated();
+
+        $room = $this->roomService->getById($roomId);
+        $tenant = $this->tenantService->getById($tenantId);
+        if (empty($room) || empty($tenant)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $this->tenantService->assignToRoom($params, $roomId, $tenantId);
 
             return $this->success(null, __('messages.create_success'));
         } catch (\Throwable $e) {

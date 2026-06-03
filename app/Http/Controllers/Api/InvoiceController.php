@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Services\Api\InvoiceService;
 use App\Validators\Api\Invoice\InvoiceCreateFormRequest;
 use App\Validators\Api\Invoice\InvoiceUpdateFormRequest;
+use App\Validators\Api\Invoice\PayRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class InvoiceController extends BaseApiController
@@ -66,5 +67,21 @@ class InvoiceController extends BaseApiController
             return $this->success($delete, __('messages.delete_success'));
         }
         return $this->error(__('messages.delete_failed'));
+    }
+
+    public function payInvoice($id, PayRequest $request)
+    {
+
+        $invoice = $this->invoiceService->getNotPaidInvoiceById($id);
+        if (empty($invoice)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $isPaySuccess = $this->invoiceService->payInvoice($invoice, $request->validated());
+
+        if ($isPaySuccess) {
+            return $this->success($isPaySuccess, __('messages.update_success'));
+        }
+        return $this->error(__('messages.update_failed'));
     }
 }

@@ -128,7 +128,7 @@ class TenantRoomHistoryService extends CustomService
                     'tenant_id' => $history->tenant_id,
                     'room_id' => $destRoomId,
                     'move_in_date' => now(),
-                    'is_representative' => false,
+                    'is_representative' => IsPresentativeEnum::FALSE,
                 ]);
             }
 

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatusEnum;
+use App\Enums\DebtTypeEnum;
 use App\Models\Base\CustomModel;
 
 class Debt extends CustomModel
@@ -45,4 +47,9 @@ class Debt extends CustomModel
     {
         return $this->hasMany(InvoiceItem::class, 'debt_id');
     }
+
+    protected $casts = [
+        'debt_type' => DebtTypeEnum::class,
+        'status'    => ActiveStatusEnum::class,
+    ];
 }

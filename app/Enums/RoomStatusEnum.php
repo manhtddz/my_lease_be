@@ -4,10 +4,10 @@ namespace App\Enums;
 
 final class RoomStatusEnum extends Enum
 {
-    const AVAILABLE = 1;
-    const PARTIALLY_OCCUPIED = 2;
-    const FULLY_OCCUPIED = 3;
-    const RESERVED = 4;
+    const AVAILABLE = 0;
+    const PARTIALLY_OCCUPIED = 1;
+    const FULLY_OCCUPIED = 2;
+    const RESERVED = 3;
 
     public static function texts(): array
     {

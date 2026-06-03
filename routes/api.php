@@ -51,6 +51,7 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
             Route::put('/{id}', [InvoiceController::class, 'update'])->name('update');
             Route::delete('/{id}', [InvoiceController::class, 'destroy'])->name('destroy');
+            Route::post('/pay-invoices/{id}', [InvoiceController::class, 'payInvoice'])->name('payInvoice');
         });
 
         Route::group(['as' => 'invoiceItems.', 'prefix' => 'invoice-items'], function () {
@@ -113,6 +114,7 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::delete('/{id}', [TenantController::class, 'destroy'])->name('destroy');
             Route::post('/store-and-assign', [TenantController::class, 'storeAndAssign'])->name('storeAndAssign');
             Route::put('/{tenantId}/{roomId}/set-representation', [TenantController::class, 'setRepresentation'])->name('setRepresentation');
+            Route::post('/assign-to-room/{tenantId}/{roomId}', [TenantController::class, 'assignToRoom'])->name('assignToRoom');
         });
 
         Route::group(['as' => 'tenantRoomHistories.', 'prefix' => 'tenant-room-histories'], function () {
