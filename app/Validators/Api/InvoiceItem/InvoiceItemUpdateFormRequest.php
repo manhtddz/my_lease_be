@@ -2,6 +2,7 @@
 
 namespace App\Validators\Api\InvoiceItem;
 
+use App\Enums\ItemTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,7 +21,7 @@ class InvoiceItemUpdateFormRequest extends FormRequest
                 'integer',
                 Rule::exists('invoices', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
-            'item_type' => ['sometimes', 'integer', Rule::in([1, 2, 3, 4, 5])],
+            'item_type' => ['sometimes', 'integer', Rule::in(ItemTypeEnum::getValues())],
             'item_name' => ['sometimes', 'string', 'max:255'],
             'amount' => ['sometimes', 'numeric'],
             'note' => ['nullable', 'string'],

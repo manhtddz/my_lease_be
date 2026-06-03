@@ -116,4 +116,40 @@ class TenantService extends CustomService
             throw $exception;
         }
     }
+
+    public function assignToRoom($params, $roomId, $tenantId)
+    {
+        if ($params['is_representative'] && $this->tenantRoomHistoryRepository->hasRepresentativeInRoom($roomId)) {
+            throw ValidationException::withMessages(['is_representative' => [__('messages.room_already_has_representative')]]);
+        }
+
+        DB::beginTransaction();
+        try {
+            $this->tenantRoomHistoryRepository->create([
+                'tenant_id' => $tenantId,
+                'room_id' => $roomId,
+                'move_in_date' => now(),
+                'is_representative' => $params['is_representative'],
+                'note' => $params['note'] ?? null,
+            ]);
+
+            $activeConsumption = $this->roomConsumptionService->getActiveConsumptionByRoomId($roomId);
+            if (!$activeConsumption) {
+                $consumptionData = [
+                    'electricityUnitPrice' => $params['electricityUnitPrice'] ?? null,
+                    'waterUnitPrice' => $params['waterUnitPrice'] ?? null,
+                    'occupiedUnitPrice' => $params['occupiedUnitPrice'] ?? null,
+                    'note' => null,
+                ];
+                
+                $this->roomConsumptionService->startConsumption($roomId, $consumptionData);
+            }
+
+            DB::commit();
+            return true;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
+    }
 }

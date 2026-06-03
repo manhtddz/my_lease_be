@@ -2,6 +2,8 @@
 
 namespace App\Validators\Api\RoomSidePaid;
 
+use App\Enums\ActiveStatusEnum;
+use App\Enums\PaidByEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,8 +30,8 @@ class RoomSidePaidCreateFormRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric'],
             'issue_date' => ['required', 'date'],
-            'paid_by' => ['required', 'string', 'max:100'],
-            'status' => ['required', 'string', 'max:50'],
+            'paid_by' => ['required', Rule::in(PaidByEnum::getValues())],
+            'status' => ['required', Rule::in(ActiveStatusEnum::getValues())],
             'note' => ['nullable', 'string'],
         ];
     }

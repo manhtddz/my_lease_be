@@ -53,4 +53,14 @@ class Tenant extends CustomModel
     {
         return $this->hasMany(RoomSidePaid::class, 'tenant_id');
     }
+
+    public function currentRoom()
+    {
+        return $this->belongsToMany(Room::class, TenantRoomHistory::getTableName(), 'tenant_id', 'room_id')
+            ->withPivot('move_in_date', 'move_out_date', 'is_representative', 'room_price_snapshot', 'note')
+            ->where(function ($query) {
+                $query->whereNull(TenantRoomHistory::field('move_out_date'))
+                    ->orWhere(TenantRoomHistory::field('move_out_date'), '>', now());
+            });
+    }
 }

@@ -39,13 +39,8 @@ class RoomConsumption extends CustomModel
         return $this->belongsTo(Room::class, 'room_id');
     }
 
-    public function invoices()
+    public function invoiceItems()
     {
-        return $this->belongsToMany(
-            Invoice::class,
-            'invoice_room_consumptions',
-            'room_consumption_id',
-            'invoice_id'
-        )->withPivot('allocated_amount');
+        return $this->hasMany(InvoiceItem::class, 'room_consumption_id');
     }
 }

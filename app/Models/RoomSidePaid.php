@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatusEnum;
+use App\Enums\PaidByEnum;
 use App\Models\Base\CustomModel;
 
 class RoomSidePaid extends CustomModel
@@ -43,4 +45,9 @@ class RoomSidePaid extends CustomModel
     {
         return $this->hasMany(InvoiceItem::class, 'room_side_paid_id');
     }
+
+    protected $casts = [
+        'paid_by' => PaidByEnum::class,
+        'status'  => ActiveStatusEnum::class,
+    ];
 }
