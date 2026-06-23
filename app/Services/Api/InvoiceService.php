@@ -8,6 +8,7 @@ use App\Enums\IsPresentativeEnum;
 use App\Enums\ItemTypeEnum;
 use App\Enums\PaymentStatusEnum;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\TenantRoomHistory;
 use App\Repositories\Api\DebtRepository;
 use App\Repositories\Api\InvoiceItemRepository;
@@ -138,7 +139,10 @@ class InvoiceService extends CustomService
         $paymentAmount = $params['payment_amount'];
         $totalAmount = $invoice->invoiceItems()
             ->sum('amount');
-            
+        
+        $debt = $invoice->debt()->first();
+        $paidAmount = $debt?->paid_amount ?? 0;
+        $newTotalPaid = $paidAmount + $paymentAmount;            
         DB::beginTransaction();
         try {
             $this->paymentRepository->create([
@@ -150,22 +154,41 @@ class InvoiceService extends CustomService
                 'payment_status' => ActiveStatusEnum::ACTIVE,
             ]);
 
-            $newStatus = $paymentAmount >= $totalAmount
+            $newStatus = $newTotalPaid >= $totalAmount
                 ? PaymentStatusEnum::PAID
                 : PaymentStatusEnum::PARTIALLY_PAID;
 
             $this->invoiceRepository->update($invoice->id, ['payment_status' => $newStatus]);
 
-            if ($newStatus === PaymentStatusEnum::PARTIALLY_PAID) {
-                $this->debtRepository->create([
-                    'invoice_id'       => $invoice->id,
-                    'tenant_id'        => $tenantId,
-                    'original_amount'  => $totalAmount,
-                    'paid_amount'      => $paymentAmount,
-                    'remaining_amount' => $totalAmount - $paymentAmount,
+            if ($newStatus === PaymentStatusEnum::PAID && $debt) {
+                $this->debtRepository->update($debt->id, [
+                    'paid_amount'      => $newTotalPaid,
+                    'remaining_amount' => 0,
                     'debt_type'        => DebtTypeEnum::TENANT,
                     'status'           => ActiveStatusEnum::ACTIVE,
                 ]);
+            }
+    
+            if ($newStatus === PaymentStatusEnum::PARTIALLY_PAID) {
+                $remainingAmount = $totalAmount - $newTotalPaid;
+                if ($debt) {
+                    $this->debtRepository->update($debt->id, [
+                        'paid_amount'      => $newTotalPaid,
+                        'remaining_amount' => $remainingAmount,
+                        'debt_type'        => DebtTypeEnum::TENANT,
+                        'status'           => ActiveStatusEnum::ACTIVE,
+                    ]);
+                } else {
+                    $this->debtRepository->create([
+                        'invoice_id'       => $invoice->id,
+                        'tenant_id'        => $tenantId,
+                        'original_amount'  => $totalAmount,
+                        'paid_amount'      => $newTotalPaid,
+                        'remaining_amount' => $remainingAmount,
+                        'debt_type'        => DebtTypeEnum::TENANT,
+                        'status'           => ActiveStatusEnum::ACTIVE,
+                    ]);
+                }
             }
         } catch (\Throwable $exception) {
             logError($exception->getMessage());

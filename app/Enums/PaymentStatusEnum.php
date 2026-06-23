@@ -24,7 +24,6 @@ final class PaymentStatusEnum extends Enum
         return [
             self::INITIAL,
             self::PARTIALLY_PAID,
-            self::NOT_PAID_OVERDUE,
         ];
     }
 }
