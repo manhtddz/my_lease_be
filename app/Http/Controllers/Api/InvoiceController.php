@@ -62,6 +62,10 @@ class InvoiceController extends BaseApiController
             return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
         }
 
+        if ($this->invoiceService->hasActivePayment($id)) {
+            return $this->error(__('messages.invoice_has_active_payment'), Response::HTTP_BAD_REQUEST);
+        }
+
         $delete = $this->invoiceService->delete($id);
         if ($delete) {
             return $this->success($delete, __('messages.delete_success'));
@@ -71,7 +75,6 @@ class InvoiceController extends BaseApiController
 
     public function payInvoice($id, PayRequest $request)
     {
-
         $invoice = $this->invoiceService->getNotPaidInvoiceById($id);
         if (empty($invoice)) {
             return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);

@@ -13,6 +13,7 @@ return [
     // delete
     'delete_success' => 'Deleted successfully.',
     'delete_failed' => 'Deletion failed.',
+    'invoice_has_active_payment' => 'Cannot delete an invoice that has active payments.',
 
     // change
     'change_success' => 'Changed successfully.',

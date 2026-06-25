@@ -13,6 +13,7 @@ return [
     // delete
     'delete_success' => '削除しました。',
     'delete_failed' => '削除に失敗しました。',
+    'invoice_has_active_payment' => '有効な支払いがある請求書は削除できません。',
 
     // change
     'change_success' => '変更しました。',

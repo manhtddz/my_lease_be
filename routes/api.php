@@ -76,6 +76,7 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::get('/{id}', [PaymentController::class, 'show'])->name('show');
             Route::put('/{id}', [PaymentController::class, 'update'])->name('update');
             Route::delete('/{id}', [PaymentController::class, 'destroy'])->name('destroy');
+            Route::put('/cancel/{id}', [PaymentController::class, 'cancelPayment'])->name('cancelPayment');
         });
 
         Route::group(['as' => 'roomConsumptions.', 'prefix' => 'room-consumptions'], function () {

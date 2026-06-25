@@ -2,8 +2,12 @@
 
 namespace App\Services\Api;
 
+use App\Enums\ActiveStatusEnum;
+use App\Enums\PaymentStatusEnum;
+use App\Models\Payment;
 use App\Repositories\Api\PaymentRepository;
 use App\Services\CustomService;
+use Illuminate\Support\Facades\DB;
 
 class PaymentService extends CustomService
 {
@@ -57,5 +61,38 @@ class PaymentService extends CustomService
         }
 
         return true;
+    }
+
+    public function cancel($payment)
+    {
+        // Guard: tránh cancel lại payment đã bị huỷ → tránh trừ tiền 2 lần
+        if ($payment->payment_status == ActiveStatusEnum::CANCELLED) {
+            return false;
+        }
+
+        DB::beginTransaction();
+        try {
+            $payment->update([
+                'payment_status' => ActiveStatusEnum::CANCELLED,
+            ]);
+
+            // Tính lại tổng tiền đã trả còn hiệu lực của invoice sau khi huỷ
+            $totalPaid = Payment::where('invoice_id', $payment->invoice_id)
+                ->where('payment_status', ActiveStatusEnum::ACTIVE)
+                ->sum('payment_amount');
+
+            $newStatus = $totalPaid > 0
+                ? PaymentStatusEnum::PARTIALLY_PAID
+                : PaymentStatusEnum::INITIAL;
+
+            $payment->invoice()->update(['payment_status' => $newStatus]);
+
+            DB::commit();
+            return true;
+        } catch (\Throwable $exception) {
+            logError($exception->getMessage());
+            DB::rollBack();
+            return false;
+        }
     }
 }
