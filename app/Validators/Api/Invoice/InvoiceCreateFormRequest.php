@@ -37,6 +37,11 @@ class InvoiceCreateFormRequest extends FormRequest
                 'integer',
                 Rule::exists('rooms', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
+            'representative_tenant_id' => [
+                'required',
+                'integer',
+                Rule::exists('tenants', 'id')->where('del_flag', getConfig('deleted_flag.off')),
+            ],
             'payment_status' => ['required', Rule::in(PaymentStatusEnum::getValues())],
             'note' => ['nullable', 'string'],
         ];
