@@ -74,4 +74,18 @@ class RoomService extends CustomService
     {
         return $room->currentTenants()->get();
     }
+
+    public function checkTenantIsRepresentOfRoom($tenantId, $roomId)
+    {
+        $room = $this->getById($roomId);
+        $currentRepresentTenant = $room->currentTenants()
+            ->wherePivot('is_representative', true)
+            ->first();
+
+        if (!$currentRepresentTenant) {
+            return null;
+        }
+        
+        return $currentRepresentTenant->id == $tenantId;
+    }
 }

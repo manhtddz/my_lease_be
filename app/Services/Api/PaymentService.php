@@ -66,7 +66,7 @@ class PaymentService extends CustomService
     public function cancel($payment)
     {
         // Guard: tránh cancel lại payment đã bị huỷ → tránh trừ tiền 2 lần
-        if ($payment->status == ActiveStatusEnum::CANCELLED) {
+        if ($payment->status->value == ActiveStatusEnum::CANCELLED) {
             return false;
         }
 

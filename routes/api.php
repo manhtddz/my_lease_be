@@ -87,6 +87,7 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::get('/{id}', [RoomConsumptionController::class, 'show'])->name('show');
             Route::put('/{id}', [RoomConsumptionController::class, 'update'])->name('update');
             Route::delete('/{id}', [RoomConsumptionController::class, 'destroy'])->name('destroy');
+            Route::put('/end-consumption/{id}', [RoomConsumptionController::class, 'endConsumtion'])->name('endConsumtion');
         });
 
         Route::group(['as' => 'renovations.', 'prefix' => 'renovations'], function () {

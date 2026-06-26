@@ -83,6 +83,7 @@ class TenantRoomHistoryService extends CustomService
             DB::commit();
             return true;
         } catch (\Throwable $exception) {
+            logError($exception->getMessage());
             DB::rollBack();
             throw $exception;
         }
@@ -138,6 +139,7 @@ class TenantRoomHistoryService extends CustomService
             DB::commit();
             return true;
         } catch (\Throwable $exception) {
+            logError($exception->getMessage());
             DB::rollBack();
             throw $exception;
         }
