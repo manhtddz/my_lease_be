@@ -131,6 +131,10 @@ class TenantController extends BaseApiController
             return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
         }
 
+        if ($tenant->currentRoom) { 
+            return $this->error(__('messages.tenant_is_in_other_room'), Response::HTTP_BAD_REQUEST);
+        }
+
         try {
             $this->tenantService->assignToRoom($params, $roomId, $tenantId);
 

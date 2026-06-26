@@ -67,4 +67,18 @@ class PaymentController extends BaseApiController
         }
         return $this->error(__('messages.delete_failed'));
     }
+    
+    public function cancelPayment($id)
+    {
+        $payment = $this->paymentService->getById($id);
+        if (empty($payment) || empty($payment->invoice)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $cancel = $this->paymentService->cancel($payment);
+        if ($cancel) {
+            return $this->success($cancel, __('messages.delete_success'));
+        }
+        return $this->error(__('messages.delete_failed'));
+    }
 }

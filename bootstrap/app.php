@@ -2,6 +2,7 @@
 
 use App\Enums\ApiStatusEnum;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -33,6 +34,17 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         }
     )
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command('app:run-example-batch')
+            ->dailyAt('01:00')
+            ->withoutOverlapping()
+            ->onOneServer();
+
+        $schedule->command('app:execute-overdue-invoice')
+            ->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->onOneServer();
+    })
     ->withMiddleware(function (Middleware $middleware): void {
 
         $middleware->append([

@@ -30,7 +30,7 @@ class PaymentUpdateFormRequest extends FormRequest
             'payment_amount' => ['sometimes', 'numeric'],
             'payment_date' => ['sometimes', 'date'],
             'payment_method' => ['sometimes', Rule::in(PaymentMethodEnum::getValues())],
-            'payment_status' => ['sometimes', Rule::in(ActiveStatusEnum::getValues())],
+            'status' => ['sometimes', Rule::in(ActiveStatusEnum::getValues())],
             'note' => ['nullable', 'string'],
         ];
     }

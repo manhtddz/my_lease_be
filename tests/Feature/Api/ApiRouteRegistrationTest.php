@@ -19,7 +19,7 @@ class ApiRouteRegistrationTest extends TestCase
         $this->assertStringContainsString("Route::group(['as' => 'invoiceRoomConsumptions.', 'prefix' => 'invoice-room-consumptions']", $content);
         $this->assertStringContainsString("Route::group(['as' => 'payments.', 'prefix' => 'payments']", $content);
         $this->assertStringContainsString("Route::group(['as' => 'roomConsumptions.', 'prefix' => 'room-consumptions']", $content);
-        $this->assertStringContainsString("Route::group(['as' => 'roomSidePaids.', 'prefix' => 'room-side-paids']", $content);
+        $this->assertStringContainsString("Route::group(['as' => 'renovations.', 'prefix' => 'renovations']", $content);
         $this->assertStringContainsString("Route::group(['as' => 'rooms.', 'prefix' => 'rooms']", $content);
         $this->assertStringContainsString("Route::group(['as' => 'tenants.', 'prefix' => 'tenants']", $content);
         $this->assertStringContainsString("Route::group(['as' => 'tenantRoomHistories.', 'prefix' => 'tenant-room-histories']", $content);

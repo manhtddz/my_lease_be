@@ -3,17 +3,17 @@
 namespace App\Services\Api;
 
 use App\Enums\ActiveStatusEnum;
-use App\Enums\DebtTypeEnum;
 use App\Enums\IsPresentativeEnum;
 use App\Enums\ItemTypeEnum;
 use App\Enums\PaymentStatusEnum;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\TenantRoomHistory;
-use App\Repositories\Api\DebtRepository;
 use App\Repositories\Api\InvoiceItemRepository;
 use App\Repositories\Api\InvoiceRepository;
 use App\Repositories\Api\PaymentRepository;
 use App\Services\CustomService;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -23,7 +23,6 @@ class InvoiceService extends CustomService
         public InvoiceRepository $invoiceRepository,
         public InvoiceItemRepository $invoiceItemRepository,
         public PaymentRepository $paymentRepository,
-        public DebtRepository $debtRepository,
         public RoomConsumptionService $roomConsumptionService,
     ) {
         parent::__construct();
@@ -96,6 +95,11 @@ class InvoiceService extends CustomService
         return $this->invoiceRepository->getNotPaidInvoiceById($id);
     }
 
+    public function getOverdueUnpaidInvoices($overdueBefore)
+    {
+        return $this->invoiceRepository->getOverdueUnpaidInvoices($overdueBefore);
+    }
+
     public function update($id, $params)
     {
         try {
@@ -106,6 +110,13 @@ class InvoiceService extends CustomService
         }
 
         return true;
+    }
+
+    public function hasActivePayment($id)
+    {
+        return Payment::where('invoice_id', $id)
+            ->where('status', ActiveStatusEnum::ACTIVE)
+            ->exists();
     }
 
     public function delete($id)
@@ -138,7 +149,16 @@ class InvoiceService extends CustomService
         $paymentAmount = $params['payment_amount'];
         $totalAmount = $invoice->invoiceItems()
             ->sum('amount');
-            
+        
+        $paidAmount = $invoice->payments()
+            ->where('status', ActiveStatusEnum::ACTIVE)
+            ->sum('payment_amount');
+
+        if ($totalAmount == $paidAmount) {
+            return false;
+        }
+
+        $newTotalPaid = $paidAmount + $paymentAmount;            
         DB::beginTransaction();
         try {
             $this->paymentRepository->create([
@@ -147,26 +167,14 @@ class InvoiceService extends CustomService
                 'payment_amount' => $paymentAmount,
                 'payment_date'   => $params['payment_date'],
                 'payment_method' => $params['payment_method'],
-                'payment_status' => ActiveStatusEnum::ACTIVE,
+                'status'         => ActiveStatusEnum::ACTIVE,
             ]);
 
-            $newStatus = $paymentAmount >= $totalAmount
+            $newStatus = $newTotalPaid >= $totalAmount
                 ? PaymentStatusEnum::PAID
                 : PaymentStatusEnum::PARTIALLY_PAID;
-
+            
             $this->invoiceRepository->update($invoice->id, ['payment_status' => $newStatus]);
-
-            if ($newStatus === PaymentStatusEnum::PARTIALLY_PAID) {
-                $this->debtRepository->create([
-                    'invoice_id'       => $invoice->id,
-                    'tenant_id'        => $tenantId,
-                    'original_amount'  => $totalAmount,
-                    'paid_amount'      => $paymentAmount,
-                    'remaining_amount' => $totalAmount - $paymentAmount,
-                    'debt_type'        => DebtTypeEnum::TENANT,
-                    'status'           => ActiveStatusEnum::ACTIVE,
-                ]);
-            }
         } catch (\Throwable $exception) {
             logError($exception->getMessage());
             DB::rollBack();
@@ -175,5 +183,13 @@ class InvoiceService extends CustomService
 
         DB::commit();
         return true;
+    }
+
+    public function getInvoiceByConsumption($roomConsumption)
+    {
+        $invoice = $roomConsumption->invoices()
+            ->with(['invoiceItems'])
+            ->first();
+        return $invoice;
     }
 }

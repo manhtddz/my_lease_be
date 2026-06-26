@@ -35,11 +35,6 @@ class Invoice extends CustomModel
         return $this->hasMany(Payment::class, 'invoice_id');
     }
 
-    public function debt()
-    {
-        return $this->hasMany(Debt::class, 'invoice_id');
-    }
-
     public function invoiceItems()
     {
         return $this->hasMany(InvoiceItem::class, 'invoice_id');

@@ -8,7 +8,7 @@ final class ItemTypeEnum extends Enum
     const WATER = 2;
     const OCCUPIED = 3;
     const DEBT = 4;
-    const ROOM_SIDE_PAID = 5;
+    const RENOVATION = 5;
 
     public static function texts(): array {
         return [
@@ -16,7 +16,7 @@ final class ItemTypeEnum extends Enum
             self::WATER => 'WATER',
             self::OCCUPIED => 'OCCUPIED',
             self::DEBT => 'DEBT',
-            self::ROOM_SIDE_PAID => 'ROOM_SIDE_PAID',
+            self::RENOVATION => 'RENOVATION',
         ];
     }
 }

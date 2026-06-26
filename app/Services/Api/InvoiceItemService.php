@@ -33,7 +33,7 @@ class InvoiceItemService extends CustomService
     public function getById($id)
     {
         return $this->invoiceItemRepository->newQuery()
-            ->with(['invoice', 'debt', 'roomSidePaid'])
+            ->with(['invoice', 'debt', 'renovation'])
             ->find($id);
     }
 

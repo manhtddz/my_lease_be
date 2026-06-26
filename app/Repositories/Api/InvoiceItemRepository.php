@@ -27,7 +27,7 @@ class InvoiceItemRepository extends CustomRepository
         $itemName = data_get($dataSearch, 'item_name');
         $amount = data_get($dataSearch, 'amount');
         $debtId = data_get($dataSearch, 'debt_id');
-        $roomSidePaidId = data_get($dataSearch, 'room_side_paid_id');
+        $renovationId = data_get($dataSearch, 'renovation_id');
         $note = data_get($dataSearch, 'note');
 
         $q = $this->select(['*'])
@@ -46,8 +46,8 @@ class InvoiceItemRepository extends CustomRepository
             ->when($debtId, function ($query) use ($debtId) {
                 $query->where($this->modelField('debt_id'), $debtId);
             })
-            ->when($roomSidePaidId, function ($query) use ($roomSidePaidId) {
-                $query->where($this->modelField('room_side_paid_id'), $roomSidePaidId);
+            ->when($renovationId, function ($query) use ($renovationId) {
+                $query->where($this->modelField('renovation_id'), $renovationId);
             })
             ->when($note, function ($query) use ($note) {
                 $query->whereLike($this->modelField('note'), $note);

@@ -16,7 +16,7 @@ class PaymentRepository extends CustomRepository
         $paymentAmount = data_get($dataSearch, 'payment_amount');
         $paymentDate = data_get($dataSearch, 'payment_date');
         $paymentMethod = data_get($dataSearch, 'payment_method');
-        $paymentStatus = data_get($dataSearch, 'payment_status');
+        $paymentStatus = data_get($dataSearch, 'status');
         $note = data_get($dataSearch, 'note');
 
         $q = $this->select(['*'])
@@ -36,7 +36,7 @@ class PaymentRepository extends CustomRepository
                 $query->where($this->modelField('payment_method'), $paymentMethod);
             })
             ->when($paymentStatus, function ($query) use ($paymentStatus) {
-                $query->where($this->modelField('payment_status'), $paymentStatus);
+                $query->where($this->modelField('status'), $paymentStatus);
             })
             ->when($note, function ($query) use ($note) {
                 $query->whereLike($this->modelField('note'), $note);
