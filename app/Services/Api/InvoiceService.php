@@ -24,6 +24,7 @@ class InvoiceService extends CustomService
         public InvoiceItemRepository $invoiceItemRepository,
         public PaymentRepository $paymentRepository,
         public RoomConsumptionService $roomConsumptionService,
+        public RoomService $roomService,
     ) {
         parent::__construct();
     }
@@ -38,9 +39,13 @@ class InvoiceService extends CustomService
         $consumptionList = $params['room_consumption_ids'];
         $roomId = $params['room_id'];
         $isValidConsumptions = $this->roomConsumptionService->checkConsumptionBelongsToRoom($consumptionList, $roomId);
-
+        $isValidRepresentTenant = $this->roomService->checkTenantIsRepresentOfRoom($params['representative_tenant_id'], $roomId);
         if (!$isValidConsumptions) {
             throw ValidationException::withMessages(['room_consumption_ids' => [__('messages.consumption_not_from_expected_room')]]);
+        }
+
+        if (!$isValidRepresentTenant) {
+            throw ValidationException::withMessages(['representative_tenant_id' => [__('messages.tenant_not_accepted')]]);
         }
 
         DB::beginTransaction();
@@ -158,7 +163,11 @@ class InvoiceService extends CustomService
             return false;
         }
 
-        $newTotalPaid = $paidAmount + $paymentAmount;            
+        $newTotalPaid = $paidAmount + $paymentAmount;   
+        if ($newTotalPaid > $totalAmount) {
+            throw ValidationException::withMessages(['payment_amount' => [__('messages.this_payment_is_exceeded')]]);
+        }
+       
         DB::beginTransaction();
         try {
             $this->paymentRepository->create([

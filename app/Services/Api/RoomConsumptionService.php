@@ -176,4 +176,9 @@ class RoomConsumptionService extends CustomService
         $days = Carbon::parse($startDate)->diffInDays(Carbon::parse($stopDate));
         return $days * $unitPrice;
     }
+
+    public function endConsumption($consumption, $params)
+    {
+        return $consumption->update($params);
+    }
 }

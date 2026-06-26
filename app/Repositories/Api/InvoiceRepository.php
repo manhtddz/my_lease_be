@@ -69,9 +69,7 @@ class InvoiceRepository extends CustomRepository
             ->with([
                 'room',
                 'payments',
-                'debt',
-                'invoiceItems.debt',
-                'invoiceItems.renovation',
+                'invoiceItems',
             ])
             ->find($id);
     }
@@ -82,9 +80,7 @@ class InvoiceRepository extends CustomRepository
             ->with([
                 'room',
                 'payments',
-                'debt',
-                'invoiceItems.debt',
-                'invoiceItems.renovation',
+                'invoiceItems',
             ])
             ->where($this->modelField('id'), $id)
             ->whereIn($this->modelField('payment_status'), PaymentStatusEnum::getUnpaidStatus())
