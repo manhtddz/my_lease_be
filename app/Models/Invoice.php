@@ -14,6 +14,7 @@ class Invoice extends CustomModel
 
     protected $fillable = [
         'room_id',
+        'representative_tenant_id',
         'payment_status', // 1. Initial, 2. Paid, 3. Partially Paid, 4. Not Paid Overdue
         'note',
         'del_flag'
@@ -28,6 +29,11 @@ class Invoice extends CustomModel
     public function room()
     {
         return $this->belongsTo(Room::class, 'room_id');
+    }
+
+    public function representative()
+    {
+        return $this->belongsTo(Tenant::class, 'representative_tenant_id');
     }
 
     public function payments()

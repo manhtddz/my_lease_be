@@ -4,6 +4,8 @@ namespace App\Repositories\Api;
 
 use App\Enums\PaymentStatusEnum;
 use App\Models\Invoice;
+use App\Models\Room;
+use App\Models\Tenant;
 use App\Repositories\CustomRepository;
 
 class InvoiceRepository extends CustomRepository
@@ -13,21 +15,52 @@ class InvoiceRepository extends CustomRepository
     public function getListForSearch($dataSearch = [])
     {
         $roomId = data_get($dataSearch, 'room_id');
+        $room_number = data_get($dataSearch, 'room_number');
+        $representativeTenantId = data_get($dataSearch, 'representative_tenant_id');
+        $representativeTenantName = data_get($dataSearch, 'representative_tenant_name');
+        $totalAmount = data_get($dataSearch, 'total_amount');
         $paymentStatus = data_get($dataSearch, 'payment_status');
         $note = data_get($dataSearch, 'note');
+        $sortBy = data_get($dataSearch, 'sort_by', 'id');
+        $sortDir = data_get($dataSearch, 'sort_dir', 'asc');
+        $size = data_get($dataSearch, 'size', getConstant('PER_PAGE_DEFAULT'));
 
-        $q = $this->select(['*'])
+        $q = $this->with([
+            'room' => function ($query) {
+                $query->select(Room::field('id'), Room::field('room_number'));
+            },
+            'representative' => function ($query) {
+                $query->select(Tenant::field('id'), Tenant::field('name'));
+            },
+        ])
+            ->select(['*'])
             ->when($roomId, function ($query) use ($roomId) {
                 $query->where($this->modelField('room_id'), $roomId);
+            })
+            ->when($room_number, function ($query) use ($room_number) {
+                $query->whereHas('room', function ($qRoom) use ($room_number) {
+                    $qRoom->whereLike(Room::field('room_number'), $room_number);
+                });
+            })
+            ->when($representativeTenantName, function ($query) use ($representativeTenantName) {
+                $query->whereHas('representative', function ($qRepresentative) use ($representativeTenantName) {
+                    $qRepresentative->whereLike(Tenant::field('name'), $representativeTenantName);
+                });
+            })
+            ->when($representativeTenantId, function ($query) use ($representativeTenantId) {
+                $query->where($this->modelField('representative_tenant_id'), $representativeTenantId);
+            })
+            ->when($totalAmount !== null && $totalAmount !== '', function ($query) use ($totalAmount) {
+                $query->where($this->modelField('total_amount'), $totalAmount);
             })
             ->when($paymentStatus, function ($query) use ($paymentStatus) {
                 $query->where($this->modelField('payment_status'), $paymentStatus);
             })
             ->when($note, function ($query) use ($note) {
                 $query->whereLike($this->modelField('note'), $note);
-            });
+            })->orderBy($sortBy, $sortDir);
 
-        return $q->paginate(getConstant('PER_PAGE_DEFAULT'));
+        return $q->paginate($size);
     }
 
     public function findForShow($id)
