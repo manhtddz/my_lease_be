@@ -17,7 +17,7 @@ class PaymentRepositoryTest extends TestCase
         $this->assertStringContainsString('protected $model = Payment::class;', $content);
         $this->assertStringContainsString("data_get(\$dataSearch, 'note')", $content);
         $this->assertStringContainsString("whereLike(\$this->modelField('note')", $content);
-        $this->assertStringContainsString("data_get(\$dataSearch, 'payment_status')", $content);
+        $this->assertStringContainsString("data_get(\$dataSearch, 'status')", $content);
         $this->assertStringContainsString('paginate(getConstant(\'PER_PAGE_DEFAULT\'))', $content);
     }
 }

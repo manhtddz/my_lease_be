@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Services\Api\DebtService;
 use App\Validators\Api\Debt\DebtCreateFormRequest;
 use App\Validators\Api\Debt\DebtUpdateFormRequest;
+use App\Validators\Api\Debt\PayDebtFormRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class DebtController extends BaseApiController
@@ -64,6 +65,25 @@ class DebtController extends BaseApiController
         $delete = $this->debtService->delete($id);
         if ($delete) {
             return $this->success($delete, __('messages.delete_success'));
+        }
+        return $this->error(__('messages.delete_failed'));
+    }
+
+    public function payDebt($id, PayDebtFormRequest $request)
+    {
+        $debt = $this->debtService->getById($id);
+
+        if ($debt->remaining_amount == 0) {
+            return $this->error(__('messages.debt_already_paid'), Response::HTTP_BAD_REQUEST);
+        }
+
+        if (empty($debt)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $success = $this->debtService->payDebt($debt, $request->validated());
+        if ($success) {
+            return $this->success($success, __('messages.delete_success'));
         }
         return $this->error(__('messages.delete_failed'));
     }

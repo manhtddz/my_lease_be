@@ -2,12 +2,12 @@
 
 namespace App\Repositories\Api;
 
-use App\Models\RoomSidePaid;
+use App\Models\Renovation;
 use App\Repositories\CustomRepository;
 
-class RoomSidePaidRepository extends CustomRepository
+class RenovationRepository extends CustomRepository
 {
-    protected $model = RoomSidePaid::class;
+    protected $model = Renovation::class;
 
     public function getListForSearch($dataSearch = [])
     {

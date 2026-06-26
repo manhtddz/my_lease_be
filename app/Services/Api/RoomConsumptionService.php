@@ -31,9 +31,20 @@ class RoomConsumptionService extends CustomService
         return true;
     }
 
-    public function getById($id)
+    public function getById($id, $isDone = false)
     {
-        return $this->roomConsumptionRepository->find($id);
+        $rq = $this->roomConsumptionRepository->find($id);
+        $stopOccupiedDate = $rq->stop_occupied_date;
+        if ($isDone) {
+            if ($stopOccupiedDate && $stopOccupiedDate <= now()) {
+                return $rq;
+            }
+    
+            return null;
+        } else {
+            return $rq;
+        }
+        
     }
 
     public function update($id, $params)

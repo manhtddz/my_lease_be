@@ -16,10 +16,12 @@ class Payment extends CustomModel
     protected $fillable = [
         'invoice_id',
         'tenant_id',
+        'debt_id',
+        'renovation_id',
         'payment_amount',
         'payment_date',
         'payment_method', // 1. banking 2. cash
-        'payment_status', // 1. Active, 0. Cancelled
+        'status', // ActiveStatusEnum: 1. Active, 0. Cancelled
         'note',
         'del_flag'
     ];
@@ -40,8 +42,18 @@ class Payment extends CustomModel
         return $this->belongsTo(Tenant::class, 'tenant_id');
     }
 
+    public function debt()
+    {
+        return $this->belongsTo(Debt::class, 'debt_id');
+    }
+
+    public function renovation()
+    {
+        return $this->belongsTo(Renovation::class, 'renovation_id');
+    }
+
     protected $casts = [
         'payment_method' => PaymentMethodEnum::class,
-        'payment_status' => ActiveStatusEnum::class,
+        'status'         => ActiveStatusEnum::class,
     ];
 }

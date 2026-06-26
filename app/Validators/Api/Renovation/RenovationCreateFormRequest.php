@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Validators\Api\RoomSidePaid;
+namespace App\Validators\Api\Renovation;
 
 use App\Enums\ActiveStatusEnum;
 use App\Enums\PaidByEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class RoomSidePaidCreateFormRequest extends FormRequest
+class RenovationCreateFormRequest extends FormRequest
 {
     public function authorize(): bool
     {

@@ -31,11 +31,11 @@ class InvoiceItemCreateFormRequest extends FormRequest
                 'required_if:item_type,' . ItemTypeEnum::DEBT,
                 Rule::exists('debts', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
-            'room_side_paid_id' => [
+            'renovation_id' => [
                 'nullable',
                 'integer',
-                'required_if:item_type,' . ItemTypeEnum::ROOM_SIDE_PAID,
-                Rule::exists('room_side_paids', 'id')->where('del_flag', getConfig('deleted_flag.off')),
+                'required_if:item_type,' . ItemTypeEnum::RENOVATION,
+                Rule::exists('renovations', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
         ];
     }

@@ -6,9 +6,9 @@ use App\Enums\ActiveStatusEnum;
 use App\Enums\PaidByEnum;
 use App\Models\Base\CustomModel;
 
-class RoomSidePaid extends CustomModel
+class Renovation extends CustomModel
 {
-    protected $table = 'room_side_paids';
+    protected $table = 'renovations';
 
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'modified_at';
@@ -43,7 +43,7 @@ class RoomSidePaid extends CustomModel
 
     public function invoiceItems()
     {
-        return $this->hasMany(InvoiceItem::class, 'room_side_paid_id');
+        return $this->hasMany(InvoiceItem::class, 'renovation_id');
     }
 
     protected $casts = [

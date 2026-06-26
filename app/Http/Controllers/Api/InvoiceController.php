@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Services\Api\InvoiceService;
+use App\Services\Api\RoomConsumptionService;
 use App\Validators\Api\Invoice\InvoiceCreateFormRequest;
 use App\Validators\Api\Invoice\InvoiceUpdateFormRequest;
 use App\Validators\Api\Invoice\PayRequest;
@@ -11,7 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 class InvoiceController extends BaseApiController
 {
     public function __construct(
-        public InvoiceService $invoiceService
+        public InvoiceService $invoiceService,
+        public RoomConsumptionService $roomConsumptionService,
     ) {
         parent::__construct();
     }
@@ -86,5 +88,21 @@ class InvoiceController extends BaseApiController
             return $this->success($isPaySuccess, __('messages.update_success'));
         }
         return $this->error(__('messages.update_failed'));
+    }
+
+    public function getInvoiceByConsumption($consumptionId)
+    {
+        $roomConsumption = $this->roomConsumptionService->getById($consumptionId, true);
+        if (empty($roomConsumption)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        $invoice = $this->invoiceService->getInvoiceByConsumption($roomConsumption);
+
+        if (empty($invoice)) {
+            return $this->error(__('messages.no_data'), Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->success($invoice, __('messages.success'));
     }
 }

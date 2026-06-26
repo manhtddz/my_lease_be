@@ -66,19 +66,19 @@ class PaymentService extends CustomService
     public function cancel($payment)
     {
         // Guard: tránh cancel lại payment đã bị huỷ → tránh trừ tiền 2 lần
-        if ($payment->payment_status == ActiveStatusEnum::CANCELLED) {
+        if ($payment->status == ActiveStatusEnum::CANCELLED) {
             return false;
         }
 
         DB::beginTransaction();
         try {
             $payment->update([
-                'payment_status' => ActiveStatusEnum::CANCELLED,
+                'status' => ActiveStatusEnum::CANCELLED,
             ]);
 
             // Tính lại tổng tiền đã trả còn hiệu lực của invoice sau khi huỷ
             $totalPaid = Payment::where('invoice_id', $payment->invoice_id)
-                ->where('payment_status', ActiveStatusEnum::ACTIVE)
+                ->where('status', ActiveStatusEnum::ACTIVE)
                 ->sum('payment_amount');
 
             $newStatus = $totalPaid > 0

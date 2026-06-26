@@ -30,10 +30,10 @@ class InvoiceItemUpdateFormRequest extends FormRequest
                 'integer',
                 Rule::exists('debts', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
-            'room_side_paid_id' => [
+            'renovation_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('room_side_paids', 'id')->where('del_flag', getConfig('deleted_flag.off')),
+                Rule::exists('renovations', 'id')->where('del_flag', getConfig('deleted_flag.off')),
             ],
         ];
     }

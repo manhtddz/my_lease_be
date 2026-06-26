@@ -14,12 +14,12 @@ class InvoiceItem extends CustomModel
 
     protected $fillable = [
         'invoice_id',
-        'item_type', // 1: Electricity, 2: Water, 3: Occupied, 4: Debt, 5: Room Side Paid
+        'item_type', // 1: Electricity, 2: Water, 3: Occupied, 4: Debt, 5: Renovation
         'item_name',
         'amount',
         'note',
         'debt_id',
-        'room_side_paid_id',
+        'renovation_id',
         'room_consumption_id',
         'del_flag'
     ];
@@ -45,9 +45,9 @@ class InvoiceItem extends CustomModel
         return $this->belongsTo(Debt::class, 'debt_id');
     }
 
-    public function roomSidePaid()
+    public function renovation()
     {
-        return $this->belongsTo(RoomSidePaid::class, 'room_side_paid_id');
+        return $this->belongsTo(Renovation::class, 'renovation_id');
     }
 
     protected $casts = [

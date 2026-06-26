@@ -38,7 +38,7 @@ class InvoiceRepository extends CustomRepository
                 'payments',
                 'debt',
                 'invoiceItems.debt',
-                'invoiceItems.roomSidePaid',
+                'invoiceItems.renovation',
             ])
             ->find($id);
     }
@@ -51,10 +51,22 @@ class InvoiceRepository extends CustomRepository
                 'payments',
                 'debt',
                 'invoiceItems.debt',
-                'invoiceItems.roomSidePaid',
+                'invoiceItems.renovation',
             ])
             ->where($this->modelField('id'), $id)
             ->whereIn($this->modelField('payment_status'), PaymentStatusEnum::getUnpaidStatus())
             ->first();
+    }
+
+    /**
+     * Invoices that are still unpaid (or partially paid) and whose creation date
+     * is older than the given threshold — i.e. payment is overdue.
+     */
+    public function getOverdueUnpaidInvoices($overdueBefore)
+    {
+        return $this->newQuery()
+            ->whereIn($this->modelField('payment_status'), PaymentStatusEnum::getUnpaidStatus())
+            ->where($this->modelField('created_at'), '<=', $overdueBefore)
+            ->get();
     }
 }

@@ -49,9 +49,9 @@ class Tenant extends CustomModel
     }
 
     // Chi phí nâng cấp
-    public function sidePaids()
+    public function renovations()
     {
-        return $this->hasMany(RoomSidePaid::class, 'tenant_id');
+        return $this->hasMany(Renovation::class, 'tenant_id');
     }
 
     public function currentRoom()

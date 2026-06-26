@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\InvoiceRoomConsumptionController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\RoomConsumptionController;
 use App\Http\Controllers\Api\RoomController;
-use App\Http\Controllers\Api\RoomSidePaidController;
+use App\Http\Controllers\Api\RenovationController;
 use App\Http\Controllers\Api\TenantController;
 use App\Http\Controllers\Api\TenantRoomHistoryController;
 use App\Http\Controllers\Api\UserController;
@@ -43,6 +43,7 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::get('/{id}', [DebtController::class, 'show'])->name('show');
             Route::put('/{id}', [DebtController::class, 'update'])->name('update');
             Route::delete('/{id}', [DebtController::class, 'destroy'])->name('destroy');
+            Route::post('/pay/{$id}', [DebtController::class, 'payDebt'])->name('payDebt');
         });
 
         Route::group(['as' => 'invoices.', 'prefix' => 'invoices'], function () {
@@ -52,6 +53,7 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::put('/{id}', [InvoiceController::class, 'update'])->name('update');
             Route::delete('/{id}', [InvoiceController::class, 'destroy'])->name('destroy');
             Route::post('/pay-invoices/{id}', [InvoiceController::class, 'payInvoice'])->name('payInvoice');
+            Route::get('/get-by-consumption/{consumptionId}', [InvoiceController::class, 'getInvoiceByConsumption'])->name('getInvoiceByConsumption');
         });
 
         Route::group(['as' => 'invoiceItems.', 'prefix' => 'invoice-items'], function () {
@@ -87,12 +89,13 @@ Route::group(['as' => getConfig('routes.api.as')], function () {
             Route::delete('/{id}', [RoomConsumptionController::class, 'destroy'])->name('destroy');
         });
 
-        Route::group(['as' => 'roomSidePaids.', 'prefix' => 'room-side-paids'], function () {
-            Route::get('/', [RoomSidePaidController::class, 'index'])->name('index');
-            Route::post('/', [RoomSidePaidController::class, 'store'])->name('store');
-            Route::get('/{id}', [RoomSidePaidController::class, 'show'])->name('show');
-            Route::put('/{id}', [RoomSidePaidController::class, 'update'])->name('update');
-            Route::delete('/{id}', [RoomSidePaidController::class, 'destroy'])->name('destroy');
+        Route::group(['as' => 'renovations.', 'prefix' => 'renovations'], function () {
+            Route::get('/', [RenovationController::class, 'index'])->name('index');
+            Route::post('/', [RenovationController::class, 'store'])->name('store');
+            Route::get('/{id}', [RenovationController::class, 'show'])->name('show');
+            Route::put('/{id}', [RenovationController::class, 'update'])->name('update');
+            Route::delete('/{id}', [RenovationController::class, 'destroy'])->name('destroy');
+            Route::post('/pay/{$id}', [RenovationController::class, 'payRenovation'])->name('payRenovation');
         });
 
         Route::group(['as' => 'rooms.', 'prefix' => 'rooms'], function () {

@@ -3,14 +3,12 @@
 namespace App\Services\Api;
 
 use App\Enums\ActiveStatusEnum;
-use App\Enums\DebtTypeEnum;
 use App\Enums\IsPresentativeEnum;
 use App\Enums\ItemTypeEnum;
 use App\Enums\PaymentStatusEnum;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\TenantRoomHistory;
-use App\Repositories\Api\DebtRepository;
 use App\Repositories\Api\InvoiceItemRepository;
 use App\Repositories\Api\InvoiceRepository;
 use App\Repositories\Api\PaymentRepository;
@@ -25,7 +23,6 @@ class InvoiceService extends CustomService
         public InvoiceRepository $invoiceRepository,
         public InvoiceItemRepository $invoiceItemRepository,
         public PaymentRepository $paymentRepository,
-        public DebtRepository $debtRepository,
         public RoomConsumptionService $roomConsumptionService,
     ) {
         parent::__construct();
@@ -98,6 +95,11 @@ class InvoiceService extends CustomService
         return $this->invoiceRepository->getNotPaidInvoiceById($id);
     }
 
+    public function getOverdueUnpaidInvoices($overdueBefore)
+    {
+        return $this->invoiceRepository->getOverdueUnpaidInvoices($overdueBefore);
+    }
+
     public function update($id, $params)
     {
         try {
@@ -113,7 +115,7 @@ class InvoiceService extends CustomService
     public function hasActivePayment($id)
     {
         return Payment::where('invoice_id', $id)
-            ->where('payment_status', ActiveStatusEnum::ACTIVE)
+            ->where('status', ActiveStatusEnum::ACTIVE)
             ->exists();
     }
 
@@ -150,7 +152,7 @@ class InvoiceService extends CustomService
         
         $paidAmount = $invoice->payments()
             ->where('status', ActiveStatusEnum::ACTIVE)
-            ->sum('amount');
+            ->sum('payment_amount');
 
         if ($totalAmount == $paidAmount) {
             return false;
@@ -165,7 +167,7 @@ class InvoiceService extends CustomService
                 'payment_amount' => $paymentAmount,
                 'payment_date'   => $params['payment_date'],
                 'payment_method' => $params['payment_method'],
-                'payment_status' => ActiveStatusEnum::ACTIVE,
+                'status'         => ActiveStatusEnum::ACTIVE,
             ]);
 
             $newStatus = $newTotalPaid >= $totalAmount
@@ -181,5 +183,13 @@ class InvoiceService extends CustomService
 
         DB::commit();
         return true;
+    }
+
+    public function getInvoiceByConsumption($roomConsumption)
+    {
+        $invoice = $roomConsumption->invoices()
+            ->with(['invoiceItems'])
+            ->first();
+        return $invoice;
     }
 }
